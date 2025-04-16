@@ -22,7 +22,7 @@ export default function RootLayout() {
       SplashScreen.hideAsync();
     }
   }, [loaded]);
-
+sdsadsa
   if (!loaded) {
     return null;
   }
