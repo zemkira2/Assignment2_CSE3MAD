@@ -1,74 +1,100 @@
-import { Image, StyleSheet, Platform } from 'react-native';
+import { Image, StyleSheet, Text,View, FlatList, TouchableOpacity} from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+const menuItems = [
+  {
+    id: '1',
+    name: 'Banh Mi Heo Quay',
+    price: '11$',
+    image: require('../../assets/images/banhmi.png'), // change path as needed
+  },
+  // You can duplicate for demo or map actual data
+  { id: '2', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
+  { id: '3', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
+  { id: '4', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
+  { id: '5', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
+];
 
 export default function HomeScreen() {
+  const renderItem = ({item}) => (
+    <View style={styles.card}>
+      <Image source={item.image} style={styles.image} />
+      <Text style={styles.name}>{item.name}</Text>
+      <Text style={styles.price}>{item.price}</Text>
+    </View>
+  );
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+    <View style={styles.MainContainer}>
+      <Image source={require('../../assets/images/logo.png')} style={styles.logo}></Image>,
+      <View style={styles.listContainer}>
+        <FlatList
+          data={menuItems}
+          keyExtractor={(item) => item.id}
+          renderItem={renderItem}
+          contentContainerStyle={styles.container}
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>ADD PRODUCT</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  logo:{
+    marginTop:60,
+    margin:"auto",
+    width: 120,
+    height: 120,
+  },
+  card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    backgroundColor: '#fff',
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 10,
+    elevation: 2, // for Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  container: {
+    padding: 10,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  image: {
+    width: 60,
+    height: 60,
+    borderRadius: 5,
+    marginRight: 10,
+  },
+  name: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  price: {
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  listContainer:{
+    backgroundColor:"white",
+    marginTop:10
+  },
+  MainContainer:{
+    backgroundColor:"#B5835E"
+  },
+  button: {
+    marginTop: 20,
+    backgroundColor: '#b47b51',
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    elevation: 3,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
