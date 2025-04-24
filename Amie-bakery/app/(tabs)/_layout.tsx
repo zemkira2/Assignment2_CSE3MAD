@@ -49,7 +49,7 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="AddProduct"
+          name="Product"
           options={{
             title: 'Product',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="cube.box.fill" color={color} />,
@@ -60,6 +60,13 @@ export default function TabLayout() {
           options={{
             title: 'Order',
             tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.fill" color={color} />,
+          }}
+        />
+        <Tabs.Screen
+          name="Delivery"
+          options={{
+            title: 'Delivery',
+            tabBarIcon: ({ color }) => <IconSymbol size={28} name="cart.circle.fill" color={color} />,
           }}
         />
       </Tabs>

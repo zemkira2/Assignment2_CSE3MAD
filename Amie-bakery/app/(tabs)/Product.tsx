@@ -1,5 +1,5 @@
 import { Image, StyleSheet, Text,View, FlatList, TouchableOpacity} from 'react-native';
-
+import { useNavigation } from 'expo-router'; // Import useNavigation from expo-router
 const menuItems = [
   {
     id: '1',
@@ -15,6 +15,10 @@ const menuItems = [
 ];
 
 export default function AddProduct() {
+  const navigate = useNavigation();
+  const handleAddProduct = () => {
+    navigate.navigate('AddProduct'); // Navigate to AddProduct screen
+  }
   const renderItem = ({item}) => (
     <View style={styles.card}>
       <Image source={item.image} style={styles.image} />
@@ -31,7 +35,7 @@ export default function AddProduct() {
           renderItem={renderItem}
           contentContainerStyle={styles.container}
         />
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={() => handleAddProduct()}>
           <Text style={styles.buttonText}>ADD PRODUCT</Text>
         </TouchableOpacity>
       </View>
