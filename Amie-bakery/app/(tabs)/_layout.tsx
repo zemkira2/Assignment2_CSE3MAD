@@ -1,17 +1,27 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, Image, StyleSheet } from 'react-native';
 
 import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { View } from 'react-native';
+const styles = StyleSheet.create({
+  logo: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+  },
+});
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
   return (
+    <View>
+      <Image source={require('../../assets/images/logo.png')} style={styles.logo}></Image>
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
@@ -27,10 +37,10 @@ export default function TabLayout() {
         }),
       }}>
       <Tabs.Screen
-        name="AddProduct"
+        name="Addproduct"
         options={{
-          title: 'AddProduct',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: 'Addproduct',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="plus.app.fill" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -41,5 +51,6 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+    </View>
   );
 }

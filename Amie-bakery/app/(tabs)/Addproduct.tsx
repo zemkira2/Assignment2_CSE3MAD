@@ -14,7 +14,7 @@ const menuItems = [
   { id: '5', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
 ];
 
-export default function HomeScreen() {
+export default function Addproduct() {
   const renderItem = ({item}) => (
     <View style={styles.card}>
       <Image source={item.image} style={styles.image} />
@@ -24,7 +24,6 @@ export default function HomeScreen() {
   );
   return (
     <View style={styles.MainContainer}>
-      <Image source={require('../../assets/images/logo.png')} style={styles.logo}></Image>,
       <View style={styles.listContainer}>
         <FlatList
           data={menuItems}
