@@ -14,7 +14,7 @@ const menuItems = [
   { id: '5', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
 ];
 
-export default function Addproduct() {
+export default function AddProduct() {
   const renderItem = ({item}) => (
     <View style={styles.card}>
       <Image source={item.image} style={styles.image} />
@@ -40,12 +40,7 @@ export default function Addproduct() {
 }
 
 const styles = StyleSheet.create({
-  logo:{
-    marginTop:60,
-    margin:"auto",
-    width: 120,
-    height: 120,
-  },
+
   card: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -80,8 +75,10 @@ const styles = StyleSheet.create({
     backgroundColor:"white",
     marginTop:10
   },
-  MainContainer:{
-    backgroundColor:"#B5835E"
+  MainContainer: {
+    backgroundColor: '#F5E9DA', // Light beige background
+    padding: 10,
+    borderRadius: 10,
   },
   button: {
     marginTop: 20,
