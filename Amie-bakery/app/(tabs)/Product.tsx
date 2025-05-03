@@ -41,7 +41,7 @@ export default function product() {
           renderItem={renderItem}
           contentContainerStyle={styles.container}
         />
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/AddProduct')}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/addProduct')}>
           <Text style={styles.buttonText}>ADD PRODUCT</Text>
         </TouchableOpacity>
       </View>
