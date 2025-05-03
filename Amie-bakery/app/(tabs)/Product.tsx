@@ -24,7 +24,7 @@ const menuItems: MenuItem[] = [
 ];
 
 
-export default function AddProduct() {
+export default function product() {
   const renderItem = ({item}: {item: MenuItem}) => (
     <View style={styles.card}>
       <Image source={item.image} style={styles.image} />
