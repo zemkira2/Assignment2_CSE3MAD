@@ -1,6 +1,15 @@
 import { Image, StyleSheet, Text,View, FlatList, TouchableOpacity} from 'react-native';
-import { useNavigation } from 'expo-router'; // Import useNavigation from expo-router
-const menuItems = [
+import { router } from 'expo-router';
+
+
+type MenuItem = {
+  id: string;
+  name: string;
+  price: string;
+  image: any; // Replace 'any' with the correct type if available
+};
+
+const menuItems: MenuItem[] = [
   {
     id: '1',
     name: 'Banh Mi Heo Quay',
@@ -14,12 +23,9 @@ const menuItems = [
   { id: '5', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
 ];
 
+
 export default function AddProduct() {
-  const navigate = useNavigation();
-  const handleAddProduct = () => {
-    navigate.navigate('AddProduct'); // Navigate to AddProduct screen
-  }
-  const renderItem = ({item}) => (
+  const renderItem = ({item}: {item: MenuItem}) => (
     <View style={styles.card}>
       <Image source={item.image} style={styles.image} />
       <Text style={styles.name}>{item.name}</Text>
@@ -35,7 +41,7 @@ export default function AddProduct() {
           renderItem={renderItem}
           contentContainerStyle={styles.container}
         />
-        <TouchableOpacity style={styles.button} onPress={() => handleAddProduct()}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/AddProduct')}>
           <Text style={styles.buttonText}>ADD PRODUCT</Text>
         </TouchableOpacity>
       </View>
