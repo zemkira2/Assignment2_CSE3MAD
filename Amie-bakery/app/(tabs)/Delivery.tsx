@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { router } from 'expo-router'; 
+import { router } from 'expo-router';
 
 const deliveryItems = [
   { id: '1', numberId: '#001', address: '1 Kingsbury, bundoora, VIC' },
@@ -20,7 +20,6 @@ export default function delivery() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Delivery</Text>
       <FlatList
         data={deliveryItems}
         keyExtractor={(item) => item.id}
