@@ -1,5 +1,6 @@
 import { Image, StyleSheet, Text,View, FlatList, TouchableOpacity} from 'react-native';
-import { router } from 'expo-router';
+import { router,Link } from 'expo-router';
+import React, { useState } from 'react';
 
 
 type MenuItem = {
@@ -25,6 +26,8 @@ const menuItems: MenuItem[] = [
 
 
 export default function product() {
+  const [isModalVisible, setModalVisible] = useState(false);
+
   const renderItem = ({item}: {item: MenuItem}) => (
     <View style={styles.card}>
       <Image source={item.image} style={styles.image} />
@@ -41,9 +44,11 @@ export default function product() {
           renderItem={renderItem}
           contentContainerStyle={styles.container}
         />
-        <TouchableOpacity style={styles.button} onPress={() => router.push('/addProduct')}>
+      <Link href="/AddProductModal" asChild>
+        <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>ADD PRODUCT</Text>
         </TouchableOpacity>
+      </Link>
       </View>
     </View>
   );
