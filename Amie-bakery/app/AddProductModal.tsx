@@ -10,6 +10,9 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
 } from "react-native";
+import { db } from "../Firebase"; // Adjusted the import path to the correct relative location
+import { collection } from "firebase/firestore"; // Import the collection function from Firebase
+import { doc, setDoc } from "firebase/firestore"; 
 
 export default function AddProductModal({
   visible,
@@ -22,9 +25,14 @@ export default function AddProductModal({
   const [price, setPrice] = useState("");
   const [image, setImage] = useState(null);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     console.log("Product saved:", { name, price, image });
-    onClose();
+    const productRef = doc(collection(db, "products"));
+    await setDoc(productRef, {
+      name,
+      price,
+      image,    
+    });
   };
 
   const handleDelete = () => {
@@ -39,7 +47,7 @@ export default function AddProductModal({
   };
 
   return (
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <KeyboardAvoidingView behavior="padding" style={styles.modalContent}>
         <Image
           source={require("../assets/images/logo.png")}
@@ -87,7 +95,6 @@ export default function AddProductModal({
 }
 
 const styles = StyleSheet.create({
-  
   modalContent: {
     width: "100%",
     height: "100%",

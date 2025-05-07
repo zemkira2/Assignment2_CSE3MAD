@@ -1,39 +1,29 @@
 import { Image, StyleSheet, Text,View, FlatList, TouchableOpacity} from 'react-native';
 import { router,Link } from 'expo-router';
 import React, { useState } from 'react';
-
-
+import {db} from "../Firebase"
 type MenuItem = {
   id: string;
   name: string;
   price: string;
-  image: any; // Replace 'any' with the correct type if available
+  image: string; // Replace 'any' with the correct type if available
 };
 
-const menuItems: MenuItem[] = [
-  {
-    id: '1',
-    name: 'Banh Mi Heo Quay',
-    price: '11$',
-    image: require('../../assets/images/banhmi.png'), // change path as needed
-  },
-  // You can duplicate for demo or map actual data
-  { id: '2', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
-  { id: '3', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
-  { id: '4', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
-  { id: '5', name: 'Banh Mi Heo Quay', price: '11$', image: require('../../assets/images/banhmi.png') },
-];
+
 
 
 export default function product() {
   const [isModalVisible, setModalVisible] = useState(false);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
   const renderItem = ({item}: {item: MenuItem}) => (
-    <View style={styles.card}>
-      <Image source={item.image} style={styles.image} />
-      <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.price}>{item.price}</Text>
-    </View>
+    <TouchableOpacity onPress={() => router.push('/AddProductModal')}>
+      <View style={styles.card}>
+        <Image src={item.image} style={styles.image} />
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.price}>{item.price}</Text>
+      </View>
+    </TouchableOpacity>
   );
   return (
     <View style={styles.MainContainer}>
