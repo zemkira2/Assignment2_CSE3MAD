@@ -33,7 +33,7 @@ export default function product() {
     fetchMenuItems();
   }, []); // Fetch menu items when the component mounts
   const renderItem = ({item}: {item: MenuItem}) => (
-    <TouchableOpacity onPress={() => router.push({pathname:'/UpdateProductModal', params:{id:item.id}})}>
+    <TouchableOpacity onPress={() => router.push({pathname:'/UpdateProductModal', params:{id:item.id,name:item.name,price:item.price,image:item.image}})}>
       <View style={styles.card}>
         <Image src={item.image} style={styles.image} />
         <Text style={styles.name}>{item.name}</Text>

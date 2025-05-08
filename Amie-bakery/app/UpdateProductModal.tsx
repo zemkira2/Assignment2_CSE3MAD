@@ -13,16 +13,16 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { db } from "./Firebase";
-import { doc, setDoc,addDoc, collection } from "firebase/firestore";
+import { doc,deleteDoc} from "firebase/firestore";
 import { useLocalSearchParams } from 'expo-router';
 import { updateDoc } from "firebase/firestore";
 
 export default function UpdateProductModal({visible,onClose,}: {visible: boolean;onClose: () => void;}){
     const params = useLocalSearchParams();
     const [editingId, setEditingId] = useState<string | null>(params.id as string || null);
-      const [name, setName] = useState("");
-      const [price, setPrice] = useState("");
-      const [image, setImage] = useState<string | null>(null);
+    const [name, setName] = useState<string>(params.name as string || "");
+    const [price, setPrice] = useState<string>(params.price as string || "");
+    const [image, setImage] = useState<string | null>(params.image as string || null);
   const handleUpdate = async () => {
     // Simulate image upload for now
     try {
@@ -40,12 +40,19 @@ export default function UpdateProductModal({visible,onClose,}: {visible: boolean
     };
 
 
-  const handleDelete = () => {
-    setName("");
-    setPrice("");
-    setImage(null);
-    console.log("Form reset");
-  };
+  const handleDelete = async () => {
+    
+    try {
+        if (editingId) {
+            const productRef = doc(db, "products", editingId);
+            await deleteDoc(productRef);
+            alert("Product deleted!");
+            router.replace('/product');} // forces reloading the product screen
+    }catch (error) {
+        console.error("Delete failed:", error);
+        alert("Failed to delete product");
+      }
+    };
 
   const handleImageUpload = () => {
     console.log("Image upload clicked");
@@ -98,7 +105,6 @@ export default function UpdateProductModal({visible,onClose,}: {visible: boolean
     </TouchableWithoutFeedback>
   );
 }
-
 const styles = StyleSheet.create({
   modalContent: {
     width: "100%",
