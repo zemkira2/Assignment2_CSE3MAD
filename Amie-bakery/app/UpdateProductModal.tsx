@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { router } from 'expo-router';
+
 import {
   View,
   Text,
@@ -11,41 +13,31 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import { db } from "./Firebase";
-import{router} from 'expo-router';
 import { doc, setDoc,addDoc, collection } from "firebase/firestore";
+import { useLocalSearchParams } from 'expo-router';
+import { updateDoc } from "firebase/firestore";
 
-export default function AddProductModal({visible,onClose,}: {visible: boolean;onClose: () => void;}){
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [image, setImage] = useState<string | null>(null);
-  const handleSave = async () => {
+export default function UpdateProductModal({visible,onClose,}: {visible: boolean;onClose: () => void;}){
+    const params = useLocalSearchParams();
+    const [editingId, setEditingId] = useState<string | null>(params.id as string || null);
+      const [name, setName] = useState("");
+      const [price, setPrice] = useState("");
+      const [image, setImage] = useState<string | null>(null);
+  const handleUpdate = async () => {
     // Simulate image upload for now
-    setImage("../assets/images/banhmi.png");
-  
-    if (!name || !price) {
-      alert("Please fill in all fields");
-      return;
-    }
-  
     try {
-      const docRef = await addDoc(collection(db, "products"), {
-        name,
-        price,
-        image,
-      });
-      await setDoc(doc(db, "products", docRef.id), {
-        id: docRef.id,
-        name,
-        price,
-        image,
-      });
-      alert("Product saved with ID: " + docRef.id);
-      router.replace('/product'); // forces reloading the product screen
-    } catch (error) {
-      console.error("Error saving product:", error);
-      alert("Failed to save product");
-    }
-  };
+        if (editingId) {
+          // 🔁 UPDATE existing product
+          const productRef = doc(db, "products", editingId);
+          await updateDoc(productRef, { name, price, image });
+          alert("Product updated!");
+          router.replace('/product'); // forces reloading the product screen
+        } 
+      } catch (error) {
+        console.error("Save failed:", error);
+        alert("Failed to save product");
+      }
+    };
 
 
   const handleDelete = () => {
@@ -95,11 +87,11 @@ export default function AddProductModal({visible,onClose,}: {visible: boolean;on
           </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.buttonText}>Save</Text>
+          <TouchableOpacity style={styles.saveButton} onPress={handleUpdate}>
+            <Text style={styles.buttonText}>Update</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Text style={styles.buttonText}>ResetForm</Text>
+            <Text style={styles.buttonText}>Delete</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

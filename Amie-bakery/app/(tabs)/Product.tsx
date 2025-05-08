@@ -1,6 +1,9 @@
 import { Image, StyleSheet, Text,View, FlatList, TouchableOpacity} from 'react-native';
 import { router,Link } from 'expo-router';
 import React, { useState } from 'react';
+import { getDocs,collection } from "firebase/firestore";
+import { useEffect } from 'react';
+
 import {db} from "../Firebase"
 type MenuItem = {
   id: string;
@@ -9,15 +12,28 @@ type MenuItem = {
   image: string; // Replace 'any' with the correct type if available
 };
 
-
-
-
 export default function product() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-
+  const fetchMenuItems = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'products'));
+      const items: MenuItem[] = querySnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+        price: doc.data().price,
+        image: doc.data().image,
+      })) as MenuItem[];
+      setMenuItems(items);
+    } catch (error) {
+      console.error('Error fetching menu items:', error);
+    }
+  };
+  useEffect(() => {
+    fetchMenuItems();
+  }, []); // Fetch menu items when the component mounts
   const renderItem = ({item}: {item: MenuItem}) => (
-    <TouchableOpacity onPress={() => router.push('/AddProductModal')}>
+    <TouchableOpacity onPress={() => router.push({pathname:'/UpdateProductModal', params:{id:item.id}})}>
       <View style={styles.card}>
         <Image src={item.image} style={styles.image} />
         <Text style={styles.name}>{item.name}</Text>
@@ -28,18 +44,18 @@ export default function product() {
   return (
     <View style={styles.MainContainer}>
       <View style={styles.listContainer}>
-        <FlatList
+        <FlatList style={{width:"100%",height:"88%"}}
           data={menuItems}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
           contentContainerStyle={styles.container}
         />
+      </View>
       <Link href="/AddProductModal" asChild>
         <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
           <Text style={styles.buttonText}>ADD PRODUCT</Text>
         </TouchableOpacity>
       </Link>
-      </View>
     </View>
   );
 }
@@ -99,3 +115,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 });
+
+
