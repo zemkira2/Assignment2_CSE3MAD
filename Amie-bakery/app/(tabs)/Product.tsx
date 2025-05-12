@@ -12,7 +12,7 @@ type MenuItem = {
   image: string; // Replace 'any' with the correct type if available
 };
 
-export default function product() {
+export default function Product() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const fetchMenuItems = async () => {
@@ -37,7 +37,7 @@ export default function product() {
       <View style={styles.card}>
         <Image src={item.image} style={styles.image} />
         <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.price}>{item.price}</Text>
+        <Text style={styles.price}>{item.price}$</Text>
       </View>
     </TouchableOpacity>
   );

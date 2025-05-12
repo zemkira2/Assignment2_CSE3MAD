@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import * as ImagePicker from 'expo-image-picker';
 import {
   View,
   Text,
@@ -13,20 +14,18 @@ import {
 import { db } from "./Firebase";
 import{router} from 'expo-router';
 import { doc, setDoc,addDoc, collection } from "firebase/firestore";
+import { getStorage, ref } from "firebase/storage";
 
-export default function AddProductModal({visible,onClose,}: {visible: boolean;onClose: () => void;}){
+
+export default function AddProductModal(){
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
   const [image, setImage] = useState<string | null>(null);
-  const handleSave = async () => {
-    // Simulate image upload for now
-    setImage("../assets/images/banhmi.png");
-  
-    if (!name || !price) {
+  const handleSave = async () => {  
+    if (!name || !price || !image) {
       alert("Please fill in all fields");
       return;
     }
-  
     try {
       const docRef = await addDoc(collection(db, "products"), {
         name,
@@ -40,7 +39,7 @@ export default function AddProductModal({visible,onClose,}: {visible: boolean;on
         image,
       });
       alert("Product saved with ID: " + docRef.id);
-      router.replace('/product'); // forces reloading the product screen
+      router.replace('/Product'); // forces reloading the product screen
     } catch (error) {
       console.error("Error saving product:", error);
       alert("Failed to save product");
@@ -55,8 +54,22 @@ export default function AddProductModal({visible,onClose,}: {visible: boolean;on
     console.log("Form reset");
   };
 
-  const handleImageUpload = () => {
-    console.log("Image upload clicked");
+  const handleImageUpload = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      const storage = getStorage();
+      const storageRef = ref(storage, `images/${result.assets[0].fileName}`);
+      // Upload the image to Firebase Storage
+      
+    }
   };
 
   return (

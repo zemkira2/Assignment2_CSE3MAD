@@ -23,7 +23,7 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="product"
+          name="Product"
           options={{
             title: 'Product',
             tabBarIcon: ({ color, focused }) => (
@@ -42,45 +42,7 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="customer"
-          options={{
-            title: 'Customer',
-            tabBarIcon: ({ color, focused }) => (
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: focused ? '#000' : 'transparent' }, // Black background when active
-                ]}
-              >
-                <Image
-                  source={require('../../assets/images/user-icon.png')} // Replace with your customer icon
-                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]} // White icon when active, black when inactive
-                />
-              </View>
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="order"
-          options={{
-            title: 'Order',
-            tabBarIcon: ({ color, focused }) => (
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: focused ? '#000' : 'transparent' }, // Black background when active
-                ]}
-              >
-                <Image
-                  source={require('../../assets/images/user-icon.png')} // Replace with your order icon
-                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]} // White icon when active, black when inactive
-                />
-              </View>
-            ),
-          }}
-        />
-        <Tabs.Screen
-          name="cart"
+          name="Delivery"
           options={{
             title: 'Your Cart',
             tabBarIcon: ({ color, focused }) => (

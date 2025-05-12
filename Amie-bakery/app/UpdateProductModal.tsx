@@ -16,6 +16,8 @@ import { db } from "./Firebase";
 import { doc,deleteDoc} from "firebase/firestore";
 import { useLocalSearchParams } from 'expo-router';
 import { updateDoc } from "firebase/firestore";
+import * as ImagePicker from 'expo-image-picker';
+
 
 export default function UpdateProductModal({visible,onClose,}: {visible: boolean;onClose: () => void;}){
     const params = useLocalSearchParams();
@@ -31,7 +33,7 @@ export default function UpdateProductModal({visible,onClose,}: {visible: boolean
           const productRef = doc(db, "products", editingId);
           await updateDoc(productRef, { name, price, image });
           alert("Product updated!");
-          router.replace('/product'); // forces reloading the product screen
+          router.replace('/Product'); // forces reloading the product screen
         } 
       } catch (error) {
         console.error("Save failed:", error);
@@ -47,15 +49,25 @@ export default function UpdateProductModal({visible,onClose,}: {visible: boolean
             const productRef = doc(db, "products", editingId);
             await deleteDoc(productRef);
             alert("Product deleted!");
-            router.replace('/product');} // forces reloading the product screen
+            router.replace('/Product');} // forces reloading the product screen
     }catch (error) {
         console.error("Delete failed:", error);
         alert("Failed to delete product");
       }
     };
 
-  const handleImageUpload = () => {
-    console.log("Image upload clicked");
+  const handleImageUpload = async () => {
+      // No permissions request is necessary for launching the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images', 'videos'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
   };
 
   return (
