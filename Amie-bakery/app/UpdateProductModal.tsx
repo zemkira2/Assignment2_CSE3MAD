@@ -17,6 +17,8 @@ import { doc,deleteDoc} from "firebase/firestore";
 import { useLocalSearchParams } from 'expo-router';
 import { updateDoc } from "firebase/firestore";
 import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes,getDownloadURL } from "firebase/storage";
+
 
 
 export default function UpdateProductModal({visible,onClose,}: {visible: boolean;onClose: () => void;}){
@@ -57,17 +59,32 @@ export default function UpdateProductModal({visible,onClose,}: {visible: boolean
     };
 
   const handleImageUpload = async () => {
-      // No permissions request is necessary for launching the image library
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images', 'videos'],
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-  
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
-      }
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images', 'videos'],
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+    const uri = result.assets[0].uri;
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const filename = uri.substring(uri.lastIndexOf('/') + 1);
+    setImage(filename);
+    const storage = getStorage();
+    const storageRef = ref(storage, `images/${filename}`);
+
+    try {
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      console.log('Uploaded successfully!');
+      console.log('Download URL:', downloadURL);
+    } catch (error) {
+      console.error('Upload failed:', error);
+    }
+    }
   };
 
   return (

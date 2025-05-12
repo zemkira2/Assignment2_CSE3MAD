@@ -14,7 +14,7 @@ import {
 import { db } from "./Firebase";
 import{router} from 'expo-router';
 import { doc, setDoc,addDoc, collection } from "firebase/firestore";
-import { getStorage, ref } from "firebase/storage";
+import { getStorage, ref, uploadBytes,getDownloadURL } from "firebase/storage";
 
 
 export default function AddProductModal(){
@@ -38,7 +38,7 @@ export default function AddProductModal(){
         price,
         image,
       });
-      alert("Product saved with ID: " + docRef.id);
+      // alert("Product saved with ID: " + docRef.id);
       router.replace('/Product'); // forces reloading the product screen
     } catch (error) {
       console.error("Error saving product:", error);
@@ -64,11 +64,22 @@ export default function AddProductModal(){
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
-      const storage = getStorage();
-      const storageRef = ref(storage, `images/${result.assets[0].fileName}`);
-      // Upload the image to Firebase Storage
-      
+    const uri = result.assets[0].uri;
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    const filename = uri.substring(uri.lastIndexOf('/') + 1);
+    setImage(filename);
+    const storage = getStorage();
+    const storageRef = ref(storage, `images/${filename}`);
+
+    try {
+      await uploadBytes(storageRef, blob);
+      const downloadURL = await getDownloadURL(storageRef);
+      console.log('Uploaded successfully!');
+      console.log('Download URL:', downloadURL);
+    } catch (error) {
+      console.error('Upload failed:', error);
+    }
     }
   };
 

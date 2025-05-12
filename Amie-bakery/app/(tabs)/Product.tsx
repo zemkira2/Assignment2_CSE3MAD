@@ -1,39 +1,70 @@
-import { Image, StyleSheet, Text,View, FlatList, TouchableOpacity} from 'react-native';
-import { router,Link } from 'expo-router';
-import React, { useState } from 'react';
-import { getDocs,collection } from "firebase/firestore";
-import { useEffect } from 'react';
+import {
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import { router, Link } from "expo-router";
+import React, { useState } from "react";
+import { getDocs, collection } from "firebase/firestore";
+import { useEffect } from "react";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
-import {db} from "../Firebase"
+import { db } from "../Firebase";
 type MenuItem = {
   id: string;
   name: string;
   price: string;
-  image: string; // Replace 'any' with the correct type if available
+  image: string;
 };
 
 export default function Product() {
   const [isModalVisible, setModalVisible] = useState(false);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
   const fetchMenuItems = async () => {
     try {
-      const querySnapshot = await getDocs(collection(db, 'products'));
-      const items: MenuItem[] = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        name: doc.data().name,
-        price: doc.data().price,
-        image: doc.data().image,
-      })) as MenuItem[];
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const storage = getStorage();
+
+      const items: MenuItem[] = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const data = doc.data();
+          const imageRef = ref(storage, "images/"+data.image);
+          const imageUrl = await getDownloadURL(imageRef);
+          return {
+            id: doc.id,
+            name: data.name,
+            price: data.price,
+            image: imageUrl,
+          };
+        })
+      );
+
       setMenuItems(items);
     } catch (error) {
-      console.error('Error fetching menu items:', error);
+      console.error("Error fetching menu items:", error);
     }
   };
   useEffect(() => {
     fetchMenuItems();
-  }, []); // Fetch menu items when the component mounts
-  const renderItem = ({item}: {item: MenuItem}) => (
-    <TouchableOpacity onPress={() => router.push({pathname:'/UpdateProductModal', params:{id:item.id,name:item.name,price:item.price,image:item.image}})}>
+  }, []);
+  const renderItem = ({ item }: { item: MenuItem }) => (
+    <TouchableOpacity
+      onPress={() =>
+        router.push({
+          pathname: "/UpdateProductModal",
+          params: {
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            image: item.image,
+          },
+        })
+      }
+    >
       <View style={styles.card}>
         <Image src={item.image} style={styles.image} />
         <Text style={styles.name}>{item.name}</Text>
@@ -44,7 +75,8 @@ export default function Product() {
   return (
     <View style={styles.MainContainer}>
       <View style={styles.listContainer}>
-        <FlatList style={{width:"100%",height:"88%"}}
+        <FlatList
+          style={{ width: "100%", height: "88%" }}
           data={menuItems}
           keyExtractor={(item) => item.id}
           renderItem={renderItem}
@@ -52,7 +84,10 @@ export default function Product() {
         />
       </View>
       <Link href="/AddProductModal" asChild>
-        <TouchableOpacity style={styles.button} onPress={() => setModalVisible(true)}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => setModalVisible(true)}
+        >
           <Text style={styles.buttonText}>ADD PRODUCT</Text>
         </TouchableOpacity>
       </Link>
@@ -61,16 +96,15 @@ export default function Product() {
 }
 
 const styles = StyleSheet.create({
-
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     marginBottom: 10,
     padding: 10,
     borderRadius: 10,
     elevation: 2, // for Android shadow
-    shadowColor: '#000', // iOS shadow
+    shadowColor: "#000", // iOS shadow
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
@@ -86,34 +120,32 @@ const styles = StyleSheet.create({
   name: {
     flex: 1,
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   price: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
-  listContainer:{
-    backgroundColor:"white",
-    marginTop:10
+  listContainer: {
+    backgroundColor: "white",
+    marginTop: 10,
   },
   MainContainer: {
-    backgroundColor: '#F5E9DA', // Light beige background
+    backgroundColor: "#F5E9DA", // Light beige background
     padding: 10,
     borderRadius: 10,
   },
   button: {
     marginTop: 20,
-    backgroundColor: '#b47b51',
+    backgroundColor: "#b47b51",
     padding: 15,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
     elevation: 3,
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
   },
 });
-
-
