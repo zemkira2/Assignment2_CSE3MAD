@@ -1,20 +1,38 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-import { useLocalSearchParams,router } from 'expo-router';
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Platform,
+  Linking,
+} from "react-native";
+import MapView, { Marker } from "react-native-maps";
+import { useLocalSearchParams } from "expo-router";
 
 export default function OrderDetail() {
+  const { numberId, address } = useLocalSearchParams();
+
+  const openInMaps = () => {
+    const url = Platform.select({
+      ios: `http://maps.apple.com/?daddr=${encodeURIComponent(
+        address as string
+      )}`,
+      android: `http://maps.google.com/?daddr=${encodeURIComponent(
+        address as string
+      )}`,
+    });
+    if (url) Linking.openURL(url);
+  };
+
   return (
     <View style={styles.container}>
-      {/* Header */}
       <Text style={styles.header}>Order details</Text>
 
-      {/* Order Info */}
       <View style={styles.orderInfo}>
-        <Text style={styles.orderId}>NumberID: #001</Text>
+        <Text style={styles.orderId}>NumberID: {numberId}</Text>
         <Text style={styles.date}>Date: 27/3/2025</Text>
 
-        {/* Order Items */}
         <View style={styles.items}>
           <Text style={styles.item}>
             2x Banh mi <Text style={styles.price}>$100</Text>
@@ -33,21 +51,18 @@ export default function OrderDetail() {
           </Text>
         </View>
 
-        {/* Total */}
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>Total</Text>
           <Text style={styles.totalPrice}>$1500</Text>
         </View>
       </View>
 
-      {/* Address */}
       <View style={styles.addressContainer}>
         <Text style={styles.addressTitle}>Address</Text>
-        <Text style={styles.address}>1 Orion ave, st albans</Text>
-        <Text style={styles.address}>Kingsbury, Melbourne, Vic 3021</Text>
+        <Text style={styles.address}>{address}</Text>
       </View>
 
-      {/* Map */}
+      {/* Map placeholder (still hardcoded) */}
       <MapView
         style={styles.map}
         initialRegion={{
@@ -60,11 +75,13 @@ export default function OrderDetail() {
         <Marker
           coordinate={{ latitude: -37.8136, longitude: 144.9631 }}
           title="Delivery Location"
-        >
-        </Marker>
+        />
       </MapView>
 
-      {/* Finish Button */}
+      <TouchableOpacity onPress={openInMaps} style={styles.navigateButton}>
+        <Text style={styles.navigateButtonText}>Open in Maps</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.finishButton}>
         <Text style={styles.finishButtonText}>FINISH</Text>
       </TouchableOpacity>
@@ -75,17 +92,17 @@ export default function OrderDetail() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5E9DA',
+    backgroundColor: "#F5E9DA",
     padding: 20,
   },
   header: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    color: '#000',
+    color: "#000",
   },
   orderInfo: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 15,
     marginBottom: 20,
@@ -93,12 +110,12 @@ const styles = StyleSheet.create({
   },
   orderId: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   date: {
     fontSize: 14,
-    color: '#555',
+    color: "#555",
     marginBottom: 10,
   },
   items: {
@@ -109,56 +126,68 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
   price: {
-    fontWeight: 'bold',
-    color: '#000',
+    fontWeight: "bold",
+    color: "#000",
   },
   totalContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#ccc',
+    borderTopColor: "#ccc",
   },
   totalLabel: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   totalPrice: {
     fontSize: 16,
-    fontWeight: 'bold',
-    color: '#B5835E',
+    fontWeight: "bold",
+    color: "#B5835E",
   },
   addressContainer: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   addressTitle: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 5,
   },
   address: {
     fontSize: 14,
-    color: '#555',
+    color: "#555",
   },
   map: {
     height: 200,
     borderRadius: 10,
-    marginBottom: 20,
+    marginBottom: 10,
   },
   marker: {
     width: 40,
     height: 40,
   },
-  finishButton: {
-    backgroundColor: '#4CAF50',
+  navigateButton: {
+    backgroundColor: "#4285F4",
     padding: 15,
     borderRadius: 10,
-    alignItems: 'center',
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  navigateButtonText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 16,
+  },
+  finishButton: {
+    backgroundColor: "#4CAF50",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
   },
   finishButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: "#fff",
+    fontWeight: "bold",
     fontSize: 16,
   },
 });
