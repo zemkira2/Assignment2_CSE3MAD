@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   StyleSheet,
   View,
@@ -7,8 +7,6 @@ import {
   FlatList,
   TouchableOpacity,
   SafeAreaView,
-  Modal,
-  Pressable,
 } from "react-native";
 import { router } from "expo-router";
 import { MenuItem } from "../types";
@@ -41,81 +39,55 @@ const menuItems: MenuItem[] = [
 ];
 
 const MenuScreen = () => {
-  const [groupedCart, setGroupedCart] = useState<GroupedItem[]>([]);
-  const [selectedItem, setSelectedItem] = useState<string>(menuItems[0].id);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [userId] = useState("user1");
+  const userId = "user1";
 
   const addToCart = async (item: MenuItem) => {
     try {
-      const existing = groupedCart.find((i) => i.id === item.id);
-      let newGroupedCart: GroupedItem[];
-
-      if (existing) {
-        newGroupedCart = groupedCart.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-        );
-      } else {
-        newGroupedCart = [...groupedCart, { ...item, quantity: 1 }];
-      }
-
-      setGroupedCart(newGroupedCart);
-
       const userCartRef = doc(db, "carts", userId);
       const docSnap = await getDoc(userCartRef);
+      let updatedItems: GroupedItem[] = [];
 
       if (docSnap.exists()) {
         const existingItems = docSnap.data().items as GroupedItem[];
-        const updatedItems = [...existingItems];
-        const index = updatedItems.findIndex(i => i.id === item.id);
+        const index = existingItems.findIndex((i) => i.id === item.id);
         if (index !== -1) {
-          updatedItems[index].quantity += 1;
+          existingItems[index].quantity += 1;
         } else {
-          updatedItems.push({ ...item, quantity: 1 });
+          existingItems.push({ ...item, quantity: 1 });
         }
-        await setDoc(userCartRef, { items: updatedItems }, { merge: true });
+        updatedItems = existingItems;
       } else {
-        await setDoc(userCartRef, {
-          items: [{ ...item, quantity: 1 }],
-          userId: userId,
-          createdAt: new Date()
-        });
+        updatedItems = [{ ...item, quantity: 1 }];
       }
 
+      await setDoc(userCartRef, { items: updatedItems }, { merge: true });
+
+      // Navigate with dummy param to trigger CartScreen re-render
       router.navigate({
         pathname: "/(tabs)/CartScreen",
-        params: { cart: JSON.stringify(newGroupedCart) },
+        params: { updated: Date.now().toString() },
       });
     } catch (error) {
-      console.error("Error adding to cart: ", error);
+      console.error("Error adding to cart:", error);
     }
   };
 
-  const selectedMenuItem = menuItems.find((item) => item.id === selectedItem);
-
-  const renderMenuItem = ({ item }: { item: MenuItem }) => {
-    const group = groupedCart.find((g) => g.id === item.id);
-    const quantity = group ? group.quantity : 0;
-
-    return (
-      <View style={styles.card}>
-        <Image source={item.image} style={styles.image} />
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.price}>{item.price}$</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => addToCart(item)}
-        >
-          <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
-        {quantity > 0 && <Text style={styles.quantity}>{quantity}x</Text>}
-      </View>
-    );
-  };
+  const renderMenuItem = ({ item }: { item: MenuItem }) => (
+    <View style={styles.card}>
+      <Image source={item.image} style={styles.image} />
+      <Text style={styles.name}>{item.name}</Text>
+      <Text style={styles.price}>{item.price}$</Text>
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => addToCart(item)}
+      >
+        <Text style={styles.addButtonText}>Add</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <SafeAreaView style={styles.MainContainer}>
-
       <FlatList
         data={menuItems}
         keyExtractor={(item) => item.id}
@@ -132,41 +104,6 @@ const styles = StyleSheet.create({
   MainContainer: {
     flex: 1,
     backgroundColor: "#F5E9DA",
-  },
-  logoContainer: {
-    backgroundColor: "#B5835E",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingTop: 40,
-    paddingBottom: 20,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    backgroundColor: "#fff",
-    borderRadius: 60,
-  },
-  dropdownContainer: {
-    padding: 15,
-    backgroundColor: "white",
-    marginHorizontal: 10,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  dropdownLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  dropdown: {
-    backgroundColor: "#eee",
-    padding: 10,
-    borderRadius: 6,
-  },
-  selectedPrice: {
-    fontSize: 14,
-    color: "#666",
-    marginTop: 8,
   },
   container: {
     padding: 10,
@@ -208,26 +145,5 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: "#fff",
     fontWeight: "bold",
-  },
-  quantity: {
-    marginLeft: 10,
-    fontSize: 14,
-    fontWeight: "bold",
-    color: "#444",
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.4)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  modalContent: {
-    width: "80%",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-  },
-  modalItem: {
-    paddingVertical: 10,
   },
 });
