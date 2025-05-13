@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-// import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 
 export default function OrderDetail() {
   return (
@@ -47,7 +47,7 @@ export default function OrderDetail() {
       </View>
 
       {/* Map */}
-      {/* <MapView
+      <MapView
         style={styles.map}
         initialRegion={{
           latitude: -37.8136,
@@ -61,7 +61,7 @@ export default function OrderDetail() {
           title="Delivery Location"
         >
         </Marker>
-      </MapView> */}
+      </MapView>
 
       {/* Finish Button */}
       <TouchableOpacity style={styles.finishButton}>
