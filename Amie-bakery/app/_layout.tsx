@@ -4,6 +4,7 @@ export default function RootLayout() {
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="AddProductModal" options={{ presentation: "modal" }} />
+      <Stack.Screen name="OrderDetail" options={{ headerShown: false }} />
     </Stack>
   );
 }

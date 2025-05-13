@@ -16,7 +16,7 @@ const deliveryItems = [
   { id: "5", numberId: "#005", address: "5 Kingsbury, bundoora, VIC" },
 ];
 
-export default function delivery() {
+export default function Delivery() {
   const renderItem = ({
     item,
   }: {
@@ -25,7 +25,7 @@ export default function delivery() {
     <TouchableOpacity
       onPress={() =>
         router.push({
-          pathname: "./OrderDetail",
+          pathname: "../OrderDetail",
           params: { numberId: item.numberId, address: item.address },
         })
       }
