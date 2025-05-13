@@ -1,42 +1,42 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+import { View, Image, Text, StyleSheet } from 'react-native';
 
 export default function TabLayout() {
   return (
     <View style={styles.container}>
-      {/* Add the logo at the top */}
+      {/* Logo at the top */}
       <View style={styles.logoContainer}>
         <Image
-          source={require('../../assets/images/logo.png')} // Update the path to your logo
+          source={require('../../assets/images/logo.png')}
           style={styles.logo}
         />
       </View>
-      {/* Tab navigation */}
+
+      {/* Tabs */}
       <Tabs
         screenOptions={{
           tabBarStyle: styles.tabBarStyle,
-          tabBarActiveTintColor: '#fff',
-          tabBarInactiveTintColor: '#000',
-          tabBarLabelStyle: styles.tabBarLabel,
           headerShown: false,
         }}
       >
         <Tabs.Screen
           name="Product"
           options={{
-            title: 'Product',
-            tabBarIcon: ({ color, focused }) => (
+            tabBarLabel: () => null,
+            tabBarIcon: ({ focused }) => (
               <View
                 style={[
-                  styles.iconContainer,
-                  { backgroundColor: focused ? '#000' : 'transparent' }, // Black background when active
+                  styles.tabButton,
                 ]}
               >
                 <Image
-                  source={require('../../assets/images/product-icon.png')} // Replace with your product icon
-                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]} // White icon when active, black when inactive
+                  source={require('../../assets/images/product-icon.png')}
+                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]}
                 />
+                <Text style={{ color: focused ? '#fff' : '#000', fontSize: 12 }}>
+                  Product
+                </Text>
               </View>
             ),
           }}
@@ -44,18 +44,20 @@ export default function TabLayout() {
         <Tabs.Screen
           name="Delivery"
           options={{
-            title: 'Your Cart',
-            tabBarIcon: ({ color, focused }) => (
+            tabBarLabel: () => null,
+            tabBarIcon: ({ focused }) => (
               <View
                 style={[
-                  styles.iconContainer,
-                  { backgroundColor: focused ? '#000' : 'transparent' }, // Black background when active
+                  styles.tabButton,
                 ]}
               >
                 <Image
-                  source={require('../../assets/images/user-icon.png')} // Replace with your cart icon
-                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]} // White icon when active, black when inactive
+                  source={require('../../assets/images/user-icon.png')}
+                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]}
                 />
+                <Text style={{ color: focused ? '#fff' : '#000', fontSize: 12 }}>
+                  Delivery
+                </Text>
               </View>
             ),
           }}
@@ -68,41 +70,37 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5E9DA', // Light beige background
+    backgroundColor: '#F5E9DA', // Light beige
   },
   logoContainer: {
-    backgroundColor: '#B5835E', // Brown background for the logo section
+    backgroundColor: '#B5835E', // Brown header
     alignItems: 'center',
     justifyContent: 'center',
   },
   logo: {
-    width: 130, // Slightly larger logo for better visibility
+    width: 130,
     height: 130,
-    resizeMode: 'contain', // Ensure the logo maintains its aspect ratio
-    marginTop: 40, // Add some margin at the top for spacing
-    marginBottom: 20, // Add some margin at the bottom for spacing
+    resizeMode: 'contain',
+    marginTop: 40,
+    marginBottom: 20,
   },
   tabBarStyle: {
-    backgroundColor: '#B5835E', // Brown background for the tab bar
-    borderTopWidth: 0, // Remove the border for a cleaner look
-    height: 80, // Slightly increased height for better spacing
-    paddingBottom: 5, // Add padding for better alignment of icons and labels
-  },
-  tabBarLabel: {
-    fontSize: 13, // Slightly larger font size for better readability
-    fontWeight: '600', // Use semi-bold for a cleaner look
-    marginTop: -2, // Adjust spacing between the icon and label
-  },
-  iconContainer: {
-    width: 40, // Container width for the icon
-    height: 40, // Container height for the icon
-    borderRadius: 20, // Make the container circular
-    alignItems: 'center',
+    flexDirection: 'row',
+    backgroundColor: '#B5835E',
+    height: 80,   
     justifyContent: 'center',
   },
+  tabButton: {
+    flex: 1,
+    width: 180,
+    height: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
   icon: {
-    width: 26, // Slightly larger icon size for better visibility
+    width: 26,
     height: 26,
-    resizeMode: 'contain', // Ensure icons maintain their aspect ratio
+    resizeMode: 'contain',
   },
 });
