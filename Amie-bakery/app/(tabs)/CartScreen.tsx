@@ -23,41 +23,37 @@ const CartScreen = () => {
   const [cartItems, setCartItems] = useState<MenuItem[]>([]);
   const [groupedItems, setGroupedItems] = useState<GroupedItem[]>([]);
   const [subtotal, setSubtotal] = useState<number>(0);
-  const [userId] = useState("user1"); // In a real app, get this from your auth system
+  const [userId] = useState("user1");
 
   useEffect(() => {
-  // First check for params (if coming from MenuScreen)
-  const items: MenuItem[] = params.cart ? JSON.parse(params.cart as string) : [];
-  if (items.length > 0) {
-    setCartItems(items);
-    updateGroupedItems(items);
-    return;
-  }
-
-  // If no params, fetch from Firebase
-  const fetchCart = async () => {
-    const userCartRef = doc(db, "carts", userId);
-    const docSnap = await getDoc(userCartRef);
-
-    if (docSnap.exists()) {
-      const firebaseItems = docSnap.data().items as GroupedItem[];
-      setCartItems(firebaseItems);
-      updateGroupedItems(firebaseItems);
+    const items: MenuItem[] = params.cart ? JSON.parse(params.cart as string) : [];
+    if (items.length > 0) {
+      setCartItems(items);
+      updateGroupedItems(items);
+      return;
     }
-  };
 
-  fetchCart();
+    const fetchCart = async () => {
+      const userCartRef = doc(db, "carts", userId);
+      const docSnap = await getDoc(userCartRef);
+      if (docSnap.exists()) {
+        const firebaseItems = docSnap.data().items as GroupedItem[];
+        setCartItems(firebaseItems);
+        updateGroupedItems(firebaseItems);
+      }
+    };
 
-  // Set up real-time listener
-  const unsubscribe = onSnapshot(doc(db, "carts", userId), (doc) => {
-    if (doc.exists()) {
-      const firebaseItems = doc.data().items as GroupedItem[];
-      setCartItems(firebaseItems);
-      updateGroupedItems(firebaseItems);
-    }
-  }); // <-- Add this closing parenthesis here
+    fetchCart();
 
-  return () => unsubscribe();
+    const unsubscribe = onSnapshot(doc(db, "carts", userId), (doc) => {
+      if (doc.exists()) {
+        const firebaseItems = doc.data().items as GroupedItem[];
+        setCartItems(firebaseItems);
+        updateGroupedItems(firebaseItems);
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const updateGroupedItems = (items: MenuItem[]) => {
@@ -81,10 +77,7 @@ const CartScreen = () => {
       const updatedItems = cartItems.filter((item) => item.id !== id);
       setCartItems(updatedItems);
       updateGroupedItems(updatedItems);
-
-      // Update Firebase
-      const userCartRef = doc(db, "carts", userId);
-      await setDoc(userCartRef, { items: updatedItems }, { merge: true });
+      await setDoc(doc(db, "carts", userId), { items: updatedItems }, { merge: true });
     } catch (error) {
       console.error("Error removing item: ", error);
       Alert.alert("Error", "Failed to remove item from cart");
@@ -98,8 +91,7 @@ const CartScreen = () => {
     }
 
     try {
-      // Create order in orders collection
-      const orderRef = await addDoc(collection(db, "orders"), {
+      await addDoc(collection(db, "orders"), {
         items: groupedItems,
         subtotal: subtotal,
         status: "pending",
@@ -107,7 +99,6 @@ const CartScreen = () => {
         createdAt: new Date()
       });
 
-      // Clear the cart
       await setDoc(doc(db, "carts", userId), { items: [] });
 
       Alert.alert("Success", "Your order has been placed!");
@@ -119,158 +110,145 @@ const CartScreen = () => {
   };
 
   const renderCartItem = ({ item }: { item: GroupedItem }) => (
-    <View style={styles.cartItem}>
-      <Text style={styles.quantityText}>{item.quantity}x</Text>
-      <View style={styles.itemDetails}>
-        <Text style={styles.itemName}>{item.name}</Text>
+    <View style={styles.card}>
+      <Text style={styles.quantity}>{item.quantity}x</Text>
+      <View style={styles.itemInfo}>
+        <Text style={styles.name}>{item.name}</Text>
         <TouchableOpacity>
-          <Text style={styles.editText}>Edit</Text>
+          <Text style={styles.edit}>Edit</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.itemPrice}>
+      <Text style={styles.price}>
         {item.quantity > 1 ? `${item.price * item.quantity}$` : `${item.price}$`}
       </Text>
-      <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(item.id)}>
-        <Text style={styles.deleteIcon}>🗑️</Text>
+      <TouchableOpacity onPress={() => removeItem(item.id)}>
+        <Text style={styles.delete}>🗑️</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backButtonText}>←</Text>
-        </TouchableOpacity>
-        <Image
-          source={require('../../assets/amie-logo.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
+
       <Text style={styles.title}>Order Summary</Text>
+
       <FlatList
         data={groupedItems}
         renderItem={renderCartItem}
         keyExtractor={(item) => item.id}
-        style={styles.list}
+        contentContainerStyle={styles.list}
       />
+
       <View style={styles.subtotalContainer}>
-        <Text style={styles.subtotalText}>Subtotal</Text>
+        <Text style={styles.subtotalLabel}>Subtotal</Text>
         <Text style={styles.subtotalAmount}>{subtotal}$</Text>
-        <TouchableOpacity
-          style={styles.checkoutButton}
-          onPress={handleCheckout}
-        >
-          <Text style={styles.checkoutButtonText}>Checkout</Text>
-        </TouchableOpacity>
       </View>
+
+      <TouchableOpacity style={styles.checkoutButton} onPress={handleCheckout}>
+        <Text style={styles.checkoutText}>Checkout</Text>
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
 
+export default CartScreen;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#F5E9DA',
   },
   header: {
-    backgroundColor: '#c19a7a',
-    paddingVertical: 20,
-    flexDirection: 'row',
+    backgroundColor: '#B5835E',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  backButton: {
-    position: 'absolute',
-    left: 15,
-    top: 35,
-  },
-  backButtonText: {
-    fontSize: 22,
-    fontWeight: 'bold',
+    paddingTop: 40,
+    paddingBottom: 20,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 120,
+    height: 120,
+    backgroundColor: '#fff',
+    borderRadius: 60,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    padding: 15,
     textAlign: 'center',
+    marginTop: 20,
+    marginBottom: 10,
   },
   list: {
-    flex: 1,
+    paddingHorizontal: 10,
   },
-  cartItem: {
+  card: {
     flexDirection: 'row',
-    padding: 15,
-    backgroundColor: 'white',
-    marginVertical: 4,
-    marginHorizontal: 10,
-    borderRadius: 5,
     alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 10,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  quantityText: {
-    fontSize: 16,
+  quantity: {
     width: 30,
+    fontSize: 16,
+    fontWeight: 'bold',
     textAlign: 'center',
   },
-  itemDetails: {
+  itemInfo: {
     flex: 1,
     marginLeft: 10,
   },
-  itemName: {
+  name: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: 'bold',
   },
-  editText: {
+  edit: {
     color: 'blue',
     marginTop: 5,
   },
-  itemPrice: {
+  price: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: 'bold',
     marginRight: 10,
   },
-  deleteButton: {
-    padding: 5,
-  },
-  deleteIcon: {
+  delete: {
     fontSize: 20,
   },
   subtotalContainer: {
-    padding: 15,
-    backgroundColor: 'white',
     flexDirection: 'row',
-    alignItems: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    padding: 15,
+    marginHorizontal: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+    elevation: 1,
   },
-  subtotalText: {
+  subtotalLabel: {
     fontSize: 18,
     fontWeight: 'bold',
   },
   subtotalAmount: {
-    flex: 1,
     fontSize: 18,
-    marginLeft: 10,
+    fontWeight: 'bold',
   },
   checkoutButton: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    backgroundColor: '#b47b51',
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 20,
+    marginBottom: 30,
+    alignItems: 'center',
+    elevation: 3,
   },
-  checkoutButtonText: {
-    color: 'white',
+  checkoutText: {
+    color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
   },
 });
-
-export default CartScreen;

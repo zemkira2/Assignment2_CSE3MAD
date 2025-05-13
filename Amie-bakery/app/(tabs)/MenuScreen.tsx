@@ -7,8 +7,9 @@ import {
   FlatList,
   TouchableOpacity,
   SafeAreaView,
+  Modal,
+  Pressable,
 } from "react-native";
-import { Picker } from "@react-native-picker/picker";
 import { router } from "expo-router";
 import { MenuItem } from "../types";
 import { doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
@@ -42,14 +43,14 @@ const menuItems: MenuItem[] = [
 const MenuScreen = () => {
   const [groupedCart, setGroupedCart] = useState<GroupedItem[]>([]);
   const [selectedItem, setSelectedItem] = useState<string>(menuItems[0].id);
-  const [userId] = useState("user1"); // In a real app, get this from your auth system
+  const [modalVisible, setModalVisible] = useState(false);
+  const [userId] = useState("user1");
 
   const addToCart = async (item: MenuItem) => {
     try {
-      // Update local state
       const existing = groupedCart.find((i) => i.id === item.id);
       let newGroupedCart: GroupedItem[];
-      
+
       if (existing) {
         newGroupedCart = groupedCart.map((i) =>
           i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
@@ -59,35 +60,29 @@ const MenuScreen = () => {
       }
       setGroupedCart(newGroupedCart);
 
-      // Update Firebase
       const userCartRef = doc(db, "carts", userId);
-      
-      // Check if document exists
       const docSnap = await getDoc(userCartRef);
-      
+
       if (docSnap.exists()) {
-        // Update existing cart
         await updateDoc(userCartRef, {
-          items: arrayUnion({ ...item, quantity: 1 })
+          items: arrayUnion({ ...item, quantity: 1 }),
         });
       } else {
-        // Create new cart
         await setDoc(userCartRef, {
           items: [{ ...item, quantity: 1 }],
           userId: userId,
-          createdAt: new Date()
+          createdAt: new Date(),
         });
       }
 
-      // Navigate to cart with updated items
       const flatCart = newGroupedCart.flatMap((i) =>
         Array(i.quantity).fill({ ...i, quantity: undefined })
       );
+
       router.navigate({
         pathname: "/(tabs)/CartScreen",
         params: { cart: JSON.stringify(flatCart) },
       });
-
     } catch (error) {
       console.error("Error adding to cart: ", error);
     }
@@ -100,144 +95,133 @@ const MenuScreen = () => {
     const quantity = group ? group.quantity : 0;
 
     return (
-      <View style={styles.menuItem}>
-        <Image source={item.image} style={styles.itemImage} />
-        <View style={styles.itemDetails}>
-          <Text style={styles.itemName}>{item.name}</Text>
-          <Text style={styles.itemPrice}>{item.price}$</Text>
-        </View>
+      <View style={styles.card}>
+        <Image source={item.image} style={styles.image} />
+        <Text style={styles.name}>{item.name}</Text>
+        <Text style={styles.price}>{item.price}$</Text>
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => addToCart(item)}
         >
-          <Text style={styles.addButtonText}>+</Text>
+          <Text style={styles.addButtonText}>Add</Text>
         </TouchableOpacity>
-        {quantity > 0 && <Text style={styles.quantityLabel}>{quantity}x</Text>}
+        {quantity > 0 && <Text style={styles.quantity}>{quantity}x</Text>}
       </View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Image
-          source={require("../../assets/amie-logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
-
-      <View style={styles.dropdownContainer}>
-        <Text style={styles.dropdownLabel}>Select Item:</Text>
-        <Picker
-          selectedValue={selectedItem}
-          style={styles.picker}
-          onValueChange={(itemValue) => setSelectedItem(itemValue)}
-        >
-          {menuItems.map((item) => (
-            <Picker.Item key={item.id} label={item.name} value={item.id} />
-          ))}
-        </Picker>
-        {selectedMenuItem && (
-          <Text style={styles.selectedPrice}>
-            Price: {selectedMenuItem.price}$
-          </Text>
-        )}
-      </View>
-
+    <SafeAreaView style={styles.MainContainer}>
       <FlatList
         data={menuItems}
-        renderItem={renderMenuItem}
         keyExtractor={(item) => item.id}
-        style={styles.list}
+        renderItem={renderMenuItem}
+        contentContainerStyle={styles.container}
       />
     </SafeAreaView>
   );
 };
-
+export default MenuScreen;
 const styles = StyleSheet.create({
-  container: {
+  MainContainer: {
     flex: 1,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#F5E9DA",
   },
-  header: {
-    backgroundColor: "#c19a7a",
-    paddingVertical: 20,
+  logoContainer: {
+    backgroundColor: "#B5835E",
     alignItems: "center",
     justifyContent: "center",
+    paddingTop: 40,
+    paddingBottom: 20,
   },
   logo: {
-    width: 100,
-    height: 100,
+    width: 120,
+    height: 120,
+    backgroundColor: "#fff",
+    borderRadius: 60,
   },
   dropdownContainer: {
     padding: 15,
     backgroundColor: "white",
-    marginVertical: 5,
     marginHorizontal: 10,
-    borderRadius: 5,
+    borderRadius: 10,
+    marginBottom: 10,
   },
   dropdownLabel: {
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 5,
   },
-  picker: {
-    height: 50,
-    width: "100%",
+  dropdown: {
+    backgroundColor: "#eee",
+    padding: 10,
+    borderRadius: 6,
   },
   selectedPrice: {
-    fontSize: 16,
-    marginTop: 10,
-    color: "#888",
+    fontSize: 14,
+    color: "#666",
+    marginTop: 8,
   },
-  list: {
-    flex: 1,
+  container: {
+    padding: 10,
   },
-  menuItem: {
+  card: {
     flexDirection: "row",
-    padding: 15,
-    backgroundColor: "white",
-    marginVertical: 1,
     alignItems: "center",
+    backgroundColor: "#fff",
+    marginBottom: 10,
+    padding: 10,
+    borderRadius: 10,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
   },
-  itemImage: {
+  image: {
     width: 60,
     height: 60,
     borderRadius: 5,
+    marginRight: 10,
   },
-  itemDetails: {
+  name: {
     flex: 1,
-    marginLeft: 10,
-  },
-  itemName: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: "bold",
   },
-  itemPrice: {
-    fontSize: 14,
-    color: "#888",
+  price: {
+    fontSize: 16,
+    fontWeight: "bold",
   },
   addButton: {
-    width: 30,
-    height: 30,
-    backgroundColor: "white",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 15,
-    alignItems: "center",
-    justifyContent: "center",
+    marginLeft: 10,
+    backgroundColor: "#b47b51",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 8,
   },
   addButtonText: {
-    fontSize: 18,
+    color: "#fff",
     fontWeight: "bold",
   },
-  quantityLabel: {
+  quantity: {
     marginLeft: 10,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
-    color: "#333",
+    color: "#444",
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+  },
+  modalItem: {
+    paddingVertical: 10,
   },
 });
-
-export default MenuScreen;

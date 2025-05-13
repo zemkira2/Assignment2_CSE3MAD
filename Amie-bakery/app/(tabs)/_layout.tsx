@@ -6,12 +6,12 @@ export default function TabLayout() {
   return (
     <View style={styles.container}>
       {/* Add the logo at the top */}
-      {/* <View style={styles.logoContainer}>
+      <View style={styles.logoContainer}>
         <Image
-          source={require('../../assets/images/logo.png')} // Update the path to your logo
+          source={require('../../assets/images/amie-logo.png')} // Update the path to your logo
           style={styles.logo}
         />
-      </View> */}
+      </View>
       {/* Tab navigation */}
       <Tabs
         screenOptions={{
@@ -26,7 +26,7 @@ export default function TabLayout() {
           name="MenuScreen"
           options={{
             title: 'Product',
-            tabBarIcon: ({ color, focused }) => (
+            tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
               <View
                 style={[
                   styles.iconContainer,
@@ -45,7 +45,7 @@ export default function TabLayout() {
           name="CartScreen"
           options={{
             title: 'Your Cart',
-            tabBarIcon: ({ color, focused }) => (
+            tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
               <View
                 style={[
                   styles.iconContainer,
