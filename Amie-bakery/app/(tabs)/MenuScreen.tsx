@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { MenuItem } from "../types";
-import { doc, setDoc, updateDoc, arrayUnion, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 
 interface GroupedItem extends MenuItem {
@@ -58,30 +58,33 @@ const MenuScreen = () => {
       } else {
         newGroupedCart = [...groupedCart, { ...item, quantity: 1 }];
       }
+
       setGroupedCart(newGroupedCart);
 
       const userCartRef = doc(db, "carts", userId);
       const docSnap = await getDoc(userCartRef);
 
       if (docSnap.exists()) {
-        await updateDoc(userCartRef, {
-          items: arrayUnion({ ...item, quantity: 1 }),
-        });
+        const existingItems = docSnap.data().items as GroupedItem[];
+        const updatedItems = [...existingItems];
+        const index = updatedItems.findIndex(i => i.id === item.id);
+        if (index !== -1) {
+          updatedItems[index].quantity += 1;
+        } else {
+          updatedItems.push({ ...item, quantity: 1 });
+        }
+        await setDoc(userCartRef, { items: updatedItems }, { merge: true });
       } else {
         await setDoc(userCartRef, {
           items: [{ ...item, quantity: 1 }],
           userId: userId,
-          createdAt: new Date(),
+          createdAt: new Date()
         });
       }
 
-      const flatCart = newGroupedCart.flatMap((i) =>
-        Array(i.quantity).fill({ ...i, quantity: undefined })
-      );
-
       router.navigate({
         pathname: "/(tabs)/CartScreen",
-        params: { cart: JSON.stringify(flatCart) },
+        params: { cart: JSON.stringify(newGroupedCart) },
       });
     } catch (error) {
       console.error("Error adding to cart: ", error);
@@ -112,6 +115,7 @@ const MenuScreen = () => {
 
   return (
     <SafeAreaView style={styles.MainContainer}>
+
       <FlatList
         data={menuItems}
         keyExtractor={(item) => item.id}
@@ -121,7 +125,9 @@ const MenuScreen = () => {
     </SafeAreaView>
   );
 };
+
 export default MenuScreen;
+
 const styles = StyleSheet.create({
   MainContainer: {
     flex: 1,
