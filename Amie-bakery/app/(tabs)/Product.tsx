@@ -109,7 +109,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   container: {
-    padding: 10,
+    padding: 5,
   },
   image: {
     width: 60,
@@ -128,11 +128,12 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     backgroundColor: "white",
-    marginTop: 10,
+    marginTop: 5,
+    borderRadius: 5,
   },
   MainContainer: {
     backgroundColor: "#F5E9DA", // Light beige background
-    padding: 10,
+    padding: 5,
     borderRadius: 10,
   },
   button: {

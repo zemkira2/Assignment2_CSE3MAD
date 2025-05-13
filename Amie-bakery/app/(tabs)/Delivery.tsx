@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F5E9DA", // Light beige background
-    padding: 20,
+    padding: 10,
   },
   title: {
     fontSize: 24,
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   listContainer: {
     paddingBottom: 20,
     backgroundColor: "#fff",
-    borderRadius: 10,
+    borderRadius: 5,
     flex: 1,
   },
   card: {
