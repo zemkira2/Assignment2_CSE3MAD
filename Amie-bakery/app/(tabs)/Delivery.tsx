@@ -9,7 +9,7 @@ import {
 import { router } from "expo-router";
 
 const deliveryItems = [
-  { id: "1", numberId: "#001", address: "1 Kingsbury, bundoora, VIC" },
+  { id: "1", numberId: "#001", address: "10 clunes street, kingsbury, vic" },
   { id: "2", numberId: "#002", address: "2 Kingsbury, bundoora, VIC" },
   { id: "3", numberId: "#003", address: "3 Kingsbury, bundoora, VIC" },
   { id: "4", numberId: "#004", address: "4 Kingsbury, bundoora, VIC" },

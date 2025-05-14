@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -9,26 +9,42 @@ import {
   Image,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
+import * as Location from "expo-location";
 import { useLocalSearchParams } from "expo-router";
 
 export default function OrderDetail() {
   const { numberId, address } = useLocalSearchParams();
+  const [region, setRegion] = useState(null);
 
   const openInMaps = () => {
     const url = Platform.select({
-      ios: `http://maps.apple.com/?daddr=${encodeURIComponent(
-        address as string
-      )}`,
-      android: `http://maps.google.com/?daddr=${encodeURIComponent(
-        address as string
-      )}`,
+      ios: `http://maps.apple.com/?daddr=${encodeURIComponent(address as string)}`,
+      android: `http://maps.google.com/?daddr=${encodeURIComponent(address as string)}`,
     });
     if (url) Linking.openURL(url);
   };
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const geocoded = await Location.geocodeAsync(address as string);
+        if (geocoded.length > 0) {
+          const { latitude, longitude } = geocoded[0];
+          setRegion({
+            latitude,
+            longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to geocode address:", error);
+      }
+    })();
+  }, [address]);
+
   return (
     <View style={styles.container}>
-
       <Text style={styles.header}>Order details</Text>
 
       <View style={styles.orderInfo}>
@@ -64,21 +80,11 @@ export default function OrderDetail() {
         <Text style={styles.address}>{address}</Text>
       </View>
 
-      {/* Map placeholder (still hardcoded) */}
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: -37.8136,
-          longitude: 144.9631,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        }}
-      >
-        <Marker
-          coordinate={{ latitude: -37.8136, longitude: 144.9631 }}
-          title="Delivery Location"
-        />
-      </MapView>
+      {region && (
+        <MapView style={styles.map} initialRegion={region}>
+          <Marker coordinate={region} title="Delivery Location" />
+        </MapView>
+      )}
 
       <TouchableOpacity onPress={openInMaps} style={styles.navigateButton}>
         <Text style={styles.navigateButtonText}>Open in Maps</Text>
@@ -166,10 +172,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
-  marker: {
-    width: 40,
-    height: 40,
-  },
   navigateButton: {
     backgroundColor: "#4285F4",
     padding: 15,
@@ -192,17 +194,5 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
-  },
-  logoContainer: {
-    backgroundColor: "#B5835E", // Brown header
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  logo: {
-    width: 130,
-    height: 130,
-    resizeMode: "contain",
-    marginTop: 40,
-    marginBottom: 20,
   },
 });
