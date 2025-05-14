@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Platform,
   Linking,
+  Image,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import { useLocalSearchParams } from "expo-router";
@@ -27,6 +28,7 @@ export default function OrderDetail() {
 
   return (
     <View style={styles.container}>
+
       <Text style={styles.header}>Order details</Text>
 
       <View style={styles.orderInfo}>
@@ -100,6 +102,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 20,
     color: "#000",
+    marginTop: 40,
   },
   orderInfo: {
     backgroundColor: "#fff",
@@ -189,5 +192,17 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
+  },
+  logoContainer: {
+    backgroundColor: "#B5835E", // Brown header
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  logo: {
+    width: 130,
+    height: 130,
+    resizeMode: "contain",
+    marginTop: 40,
+    marginBottom: 20,
   },
 });

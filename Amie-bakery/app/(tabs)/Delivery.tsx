@@ -25,7 +25,7 @@ export default function Delivery() {
     <TouchableOpacity
       onPress={() =>
         router.push({
-          pathname: "../OrderDetail",
+          pathname: "../orderDetail",
           params: { numberId: item.numberId, address: item.address },
         })
       }
