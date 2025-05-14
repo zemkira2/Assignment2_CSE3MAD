@@ -3,5 +3,5 @@ export interface MenuItem {
  id: string;
  name: string;
  price: number;
- image: any; // Use `ImageSourcePropType` if you import it from 'react-native'
+ image: string; // Use `ImageSourcePropType` if you import it from 'react-native'
 }
