@@ -110,18 +110,17 @@ const CartScreen = () => {
     }
 
     try {
-      await addDoc(collection(db, "orders"), {
+      await addDoc(collection(db, "orders",userId,"userOrder"), {
         items: groupedItems,
         subtotal,
         status: "pending",
-        userId,
         createdAt: new Date(),
       });
 
       await setDoc(doc(db, "carts", userId), { items: [] });
 
       Alert.alert("Success", "Your order has been placed!");
-      router.push('/OrderHistoryScreen');
+      router.replace('/OrderHistoryScreen');
     } catch (error) {
       console.error("Error during checkout: ", error);
       Alert.alert("Error", "Failed to place order");

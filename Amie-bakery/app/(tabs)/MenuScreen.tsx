@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   View,
@@ -10,36 +10,44 @@ import {
 } from "react-native";
 import { router } from "expo-router";
 import { MenuItem } from "../types";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDocs, collection,getDoc } from "firebase/firestore";
 import { db } from "../firebase";
+import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 interface GroupedItem extends MenuItem {
   quantity: number;
 }
 
-const menuItems: MenuItem[] = [
-  {
-    id: "1",
-    name: "Banh Mi Heo Quay",
-    price: 11,
-    image: require("../../assets/banh-mi.jpg"),
-  },
-  {
-    id: "2",
-    name: "Banh Mi Ga Nuong",
-    price: 12,
-    image: require("../../assets/banh-mi.jpg"),
-  },
-  {
-    id: "3",
-    name: "Banh Mi Thit Nuong",
-    price: 13,
-    image: require("../../assets/banh-mi.jpg"),
-  },
-];
-
 const MenuScreen = () => {
   const userId = "user1";
+  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const fetchMenuItems = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "products"));
+      const storage = getStorage();
+
+      const items: MenuItem[] = await Promise.all(
+        querySnapshot.docs.map(async (doc) => {
+          const data = doc.data();
+          const imageRef = ref(storage, "images/" + data.image);
+          const imageUrl = await getDownloadURL(imageRef);
+          return {
+            id: doc.id,
+            name: data.name,
+            price: data.price,
+            image: imageUrl,
+          };
+        })
+      );
+
+      setMenuItems(items);
+    } catch (error) {
+      console.error("Error fetching menu items:", error);
+    }
+  };
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
 
   const addToCart = async (item: MenuItem) => {
     try {
@@ -62,11 +70,6 @@ const MenuScreen = () => {
 
       await setDoc(userCartRef, { items: updatedItems }, { merge: true });
 
-      // Navigate with dummy param to trigger CartScreen re-render
-      router.navigate({
-        pathname: "/(tabs)/CartScreen",
-        params: { updated: Date.now().toString() },
-      });
     } catch (error) {
       console.error("Error adding to cart:", error);
     }

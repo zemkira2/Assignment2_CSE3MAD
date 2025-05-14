@@ -1,37 +1,69 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import { useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import {
   StyleSheet,
   View,
   Text,
-  Image,
   FlatList,
   TouchableOpacity,
   SafeAreaView,
-} from 'react-native';
+} from "react-native";
+import { getDocs, collection } from "firebase/firestore";
+import { db } from "../firebase";
+import { MenuItem as BaseMenuItem } from "../types";
+
+interface MenuItem extends BaseMenuItem {
+  quantity: number;
+}
 
 interface Order {
-  id: number;
-  orderNumber: string;
+  id: string;
   date: string;
   total: number;
   status: string;
+  Item: MenuItem[];
+  quantity: number;
 }
 
-const orderHistory: Order[] = [
-  { id: 1, orderNumber: '#001', date: '27/3/2025', total: 100, status: 'Finished' },
-  { id: 2, orderNumber: '#002', date: '27/3/2025', total: 100, status: 'Finished' },
-  { id: 3, orderNumber: '#003', date: '27/3/2025', total: 100, status: 'Finished' },
-  { id: 4, orderNumber: '#004', date: '27/3/2025', total: 100, status: 'Finished' },
-  { id: 5, orderNumber: '#005', date: '27/3/2025', total: 100, status: 'Finished' },
-  { id: 6, orderNumber: '#006', date: '27/3/2025', total: 100, status: 'Delivering' },
-];
-
 const OrderHistoryScreen = () => {
-  const [expandedOrder, setExpandedOrder] = useState<number | null>(null);
+  const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  const toggleOrderDetails = (orderId: number) => {
+  const toggleOrderDetails = (orderId: string) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
+
+  const fetchOrderHistory = async () => {
+    try {
+      const querySnapshot = await getDocs(
+        collection(db, "orders", "user1", "userOrder")
+      );
+      const fetchedOrders: Order[] = [];
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        fetchedOrders.push({
+          id: doc.id,
+          date: data.createdAt?.toDate().toLocaleDateString() || "Unknown Date",
+          total: data.subtotal || 0,
+          status: data.status || "Unknown",
+          Item: data.items || [],
+          quantity: data.quantity || 0,
+        });
+      });
+
+      setOrders(fetchedOrders);
+    } catch (error) {
+      console.error("Error fetching order history:", error);
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchOrderHistory();
+    }, [])
+  );
 
   const renderOrderItem = ({ item }: { item: Order }) => (
     <TouchableOpacity
@@ -39,16 +71,15 @@ const OrderHistoryScreen = () => {
       onPress={() => toggleOrderDetails(item.id)}
     >
       <View style={styles.cardHeader}>
-        <Text style={styles.orderNumber}>{item.id}</Text>
+        <Text style={styles.orderNumber}>{item.id.slice(0, 4)}</Text>
         <View style={styles.orderInfo}>
           <Text style={styles.orderText}>Date: {item.date}</Text>
-          <Text style={styles.orderText}>ID: {item.orderNumber}</Text>
         </View>
         <Text style={styles.total}>{item.total}$</Text>
         <Text
           style={[
             styles.status,
-            item.status === 'Delivering' ? styles.delivering : styles.finished,
+            item.status === "Delivering" ? styles.delivering : styles.finished,
           ]}
         >
           {item.status}
@@ -56,7 +87,14 @@ const OrderHistoryScreen = () => {
       </View>
       {expandedOrder === item.id && (
         <View style={styles.expandedDetails}>
-          <Text style={styles.detailsText}>Order details would appear here</Text>
+          <Text style={styles.detailsText}>Order Id:{item.id}</Text>
+          {item.Item.map((menuItem) => (
+            <View key={menuItem.id} style={{ marginVertical: 5 }}>
+              <Text style={styles.detailsText}>
+                {menuItem.name} - {menuItem.price}$ x {menuItem.quantity}
+              </Text>
+            </View>
+          ))}
         </View>
       )}
     </TouchableOpacity>
@@ -66,9 +104,9 @@ const OrderHistoryScreen = () => {
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Order History</Text>
       <FlatList
-        data={orderHistory}
+        data={orders}
         renderItem={renderOrderItem}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.id}
         contentContainerStyle={styles.list}
       />
     </SafeAreaView>
@@ -80,25 +118,12 @@ export default OrderHistoryScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5E9DA',
-  },
-  header: {
-    backgroundColor: '#B5835E',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 40,
-    paddingBottom: 20,
-  },
-  logo: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#fff',
+    backgroundColor: "#F5E9DA",
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    fontWeight: "bold",
+    textAlign: "center",
     marginVertical: 20,
   },
   list: {
@@ -106,27 +131,27 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     marginBottom: 10,
     padding: 12,
     elevation: 2,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
   cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   orderNumber: {
     width: 30,
     height: 30,
     borderRadius: 15,
-    backgroundColor: '#eee',
-    textAlign: 'center',
+    backgroundColor: "#eee",
+    textAlign: "center",
     lineHeight: 30,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginRight: 10,
   },
   orderInfo: {
@@ -134,31 +159,31 @@ const styles = StyleSheet.create({
   },
   orderText: {
     fontSize: 14,
-    color: '#333',
+    color: "#333",
   },
   total: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginRight: 10,
   },
   status: {
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   delivering: {
-    color: '#d9534f',
+    color: "#d9534f",
   },
   finished: {
-    color: '#5cb85c',
+    color: "#5cb85c",
   },
   expandedDetails: {
     marginTop: 10,
     borderTopWidth: 1,
-    borderTopColor: '#eee',
+    borderTopColor: "#eee",
     paddingTop: 10,
   },
   detailsText: {
     fontSize: 14,
-    color: '#666',
+    color: "#666",
   },
 });
