@@ -48,7 +48,7 @@ const MenuScreen = () => {
 
   const goToAddToCartScreen = (item: MenuItem) => {
     router.push(
-      `/AddToCartScreen?id=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&image=${encodeURIComponent(item.image)}`
+      `./CustomerSide/AddToCartScreen?id=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&image=${encodeURIComponent(item.image)}`
     );
   };
 
