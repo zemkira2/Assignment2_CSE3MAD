@@ -12,6 +12,7 @@ import {
 import { getDocs, collection } from "firebase/firestore";
 import { db } from "../Firebase";
 import { MenuItem as BaseMenuItem } from "../types";
+import { auth } from "../Firebase";
 
 interface MenuItem extends BaseMenuItem {
   quantity: number;
@@ -29,6 +30,7 @@ interface Order {
 const OrderHistoryScreen = () => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
+  const email = auth.currentUser?.email;
 
   const toggleOrderDetails = (orderId: string) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
@@ -36,8 +38,12 @@ const OrderHistoryScreen = () => {
 
   const fetchOrderHistory = async () => {
     try {
+      if (!email) {
+        console.error("User email is undefined. Cannot fetch order history.");
+        return;
+      }
       const querySnapshot = await getDocs(
-        collection(db, "orders", "user1", "userOrder")
+        collection(db, "orders", email, "userOrder")
       );
       const fetchedOrders: Order[] = [];
 

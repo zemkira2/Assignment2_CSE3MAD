@@ -19,6 +19,8 @@ import {
 } from "firebase/firestore";
 import { db } from "../Firebase";
 import { MenuItem } from "../types";
+import { auth } from "../Firebase";
+
 
 interface GroupedItem extends MenuItem {
   quantity: number;
@@ -29,7 +31,7 @@ const CartScreen = () => {
   const [cartItems, setCartItems] = useState<MenuItem[]>([]);
   const [groupedItems, setGroupedItems] = useState<GroupedItem[]>([]);
   const [subtotal, setSubtotal] = useState<number>(0);
-  const [userId] = useState("user1");
+  const email = auth.currentUser?.email;
 
   useEffect(() => {
     const items: MenuItem[] = params.cart
@@ -43,7 +45,8 @@ const CartScreen = () => {
     }
 
     const fetchCart = async () => {
-      const userCartRef = doc(db, "carts", userId);
+      if (!email) return;
+      const userCartRef = doc(db, "carts", email);
       const docSnap = await getDoc(userCartRef);
 
       if (docSnap.exists()) {
@@ -62,20 +65,23 @@ const CartScreen = () => {
 
     fetchCart();
 
-    const unsubscribe = onSnapshot(doc(db, "carts", userId), (docSnap) => {
-      if (docSnap.exists()) {
-        const firebaseItems = docSnap.data().items as GroupedItem[];
-        const expandedItems = firebaseItems.flatMap((item) =>
-          Array(item.quantity).fill({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-          })
-        );
-        setCartItems(expandedItems);
-        updateGroupedItems(expandedItems);
-      }
-    });
+    let unsubscribe = () => {};
+    if (email) {
+      unsubscribe = onSnapshot(doc(db, "carts", email), (docSnap) => {
+        if (docSnap.exists()) {
+          const firebaseItems = docSnap.data().items as GroupedItem[];
+          const expandedItems = firebaseItems.flatMap((item) =>
+            Array(item.quantity).fill({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+            })
+          );
+          setCartItems(expandedItems);
+          updateGroupedItems(expandedItems);
+        }
+      });
+    }
 
     return () => unsubscribe();
   }, [params.cart]);
@@ -119,7 +125,9 @@ const CartScreen = () => {
         {}
       );
       const firebaseFormatted = Object.values(grouped);
-      await setDoc(doc(db, "carts", userId), { items: firebaseFormatted });
+      if (email) {
+        await setDoc(doc(db, "carts", email), { items: firebaseFormatted });
+      }
     } catch (error) {
       console.error("Error removing item: ", error);
       Alert.alert("Error", "Failed to remove item from cart");
@@ -133,14 +141,18 @@ const CartScreen = () => {
     }
 
     try {
-      await addDoc(collection(db, "orders", userId, "userOrder"), {
+      if (!email) {
+        Alert.alert("Error", "User email not found");
+        return;
+      }
+      await addDoc(collection(db, "orders", email, "userOrder"), {
         items: groupedItems,
         subtotal,
         status: "pending",
         createdAt: new Date(),
       });
 
-      await setDoc(doc(db, "carts", userId), { items: [] });
+      await setDoc(doc(db, "carts", email), { items: [] });
 
       Alert.alert("Success", "Your order has been placed!");
       router.replace("./OrderHistoryScreen");

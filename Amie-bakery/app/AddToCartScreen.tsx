@@ -22,13 +22,16 @@ const AddToCartScreen = () => {
   const [item, setItem] = useState<MenuItem | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
-  const userId = 'user1';
+  const email = useLocalSearchParams().email as string;
 
   useEffect(() => {
     const fetchItem = async () => {
       try {
         const docRef = doc(db, 'products', itemId);
-        const docRefCart = doc(db, 'carts', userId);
+        if(email === undefined) {
+          console.error('Email is undefined');
+        }
+        const docRefCart = doc(db, 'carts', email);
         const docSnapCart = await getDoc(docRefCart);
         const docSnap = await getDoc(docRef);
         if (docSnapCart.exists()) {
@@ -67,7 +70,7 @@ const AddToCartScreen = () => {
   const handleAddToCart = async () => {
     if (!item) return;
     try {
-      const userCartRef = doc(db, 'carts', userId);
+      const userCartRef = doc(db, 'carts', email);
       const docSnap = await getDoc(userCartRef);
       let updatedItems = [];
 

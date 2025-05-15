@@ -8,14 +8,19 @@ import {
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { MenuItem } from "../types";
-import { doc, setDoc, getDocs, collection,getDoc } from "firebase/firestore";
+import { doc, setDoc, getDocs, collection, getDoc } from "firebase/firestore";
 import { db } from "../Firebase";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
+import { auth } from "../Firebase";
+
 
 const MenuScreen = () => {
+  const param = useLocalSearchParams();
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const email = auth.currentUser?.email;
+
 
   const fetchMenuItems = async () => {
     try {
@@ -47,9 +52,16 @@ const MenuScreen = () => {
   }, []);
 
   const goToAddToCartScreen = (item: MenuItem) => {
-    router.push(
-      `../AddToCartScreen?id=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&image=${encodeURIComponent(item.image)}`
-    );
+    router.push({
+      pathname: "../AddToCartScreen",
+      params: {
+        id: item.id,
+        name: item.name,
+        price: item.price.toString(),
+        image: item.image,
+        email: email,
+      },
+    });
   };
 
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
