@@ -1,45 +1,106 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
-import { Platform } from 'react-native';
-
-import { HapticTab } from '@/components/HapticTab';
-import { IconSymbol } from '@/components/ui/IconSymbol';
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { View, Image, Text, StyleSheet } from 'react-native';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-        tabBarBackground: TabBarBackground,
-        tabBarStyle: Platform.select({
-          ios: {
-            // Use a transparent background on iOS to show the blur effect
-            position: 'absolute',
-          },
-          default: {},
-        }),
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+    <View style={styles.container}>
+      {/* Logo at the top */}
+      <View style={styles.logoContainer}>
+        <Image
+          source={require('../../assets/images/logo.png')}
+          style={styles.logo}
+        />
+      </View>
+
+      {/* Tabs */}
+      <Tabs
+        screenOptions={{
+          tabBarStyle: styles.tabBarStyle,
+          headerShown: false,
         }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
+      >
+        <Tabs.Screen
+          name="Product"
+          options={{
+            tabBarLabel: () => null,
+            tabBarIcon: ({ focused }) => (
+              <View
+                style={[
+                  styles.tabButton,
+                ]}
+              >
+                <Image
+                  source={require('../../assets/images/product-icon.png')}
+                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]}
+                />
+                <Text style={{ color: focused ? '#fff' : '#000', fontSize: 12 }}>
+                  Product
+                </Text>
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="Delivery"
+          options={{
+            tabBarLabel: () => null,
+            tabBarIcon: ({ focused }) => (
+              <View
+                style={[
+                  styles.tabButton,
+                ]}
+              >
+                <Image
+                  source={require('../../assets/images/user-icon.png')}
+                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]}
+                />
+                <Text style={{ color: focused ? '#fff' : '#000', fontSize: 12 }}>
+                  Delivery
+                </Text>
+              </View>
+            ),
+          }}
+        />
+      </Tabs>
+    </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#F5E9DA', // Light beige
+  },
+  logoContainer: {
+    backgroundColor: '#B5835E', // Brown header
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logo: {
+    width: 130,
+    height: 130,
+    resizeMode: 'contain',
+    marginTop: 40,
+    marginBottom: 20,
+  },
+  tabBarStyle: {
+    flexDirection: 'row',
+    backgroundColor: '#B5835E',
+    height: 80,   
+    justifyContent: 'center',
+  },
+  tabButton: {
+    flex: 1,
+    width: 180,
+    height: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  icon: {
+    width: 26,
+    height: 26,
+    resizeMode: 'contain',
+  },
+});
