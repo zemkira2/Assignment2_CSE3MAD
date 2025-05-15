@@ -35,7 +35,7 @@ export default function UpdateProductModal({visible,onClose,}: {visible: boolean
           const productRef = doc(db, "products", editingId);
           await updateDoc(productRef, { name, price, image });
           alert("Product updated!");
-          router.replace('/Product'); // forces reloading the product screen
+          router.replace('/(tabs)-Admin/Product'); // forces reloading the product screen
         } 
       } catch (error) {
         console.error("Save failed:", error);
@@ -51,7 +51,7 @@ export default function UpdateProductModal({visible,onClose,}: {visible: boolean
             const productRef = doc(db, "products", editingId);
             await deleteDoc(productRef);
             alert("Product deleted!");
-            router.replace('/Product');} // forces reloading the product screen
+            router.replace('/(tabs)-Admin/Product');} // forces reloading the product screen
     }catch (error) {
         console.error("Delete failed:", error);
         alert("Failed to delete product");

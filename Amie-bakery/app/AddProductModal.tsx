@@ -39,7 +39,7 @@ export default function AddProductModal(){
         image,
       });
       // alert("Product saved with ID: " + docRef.id);
-      router.replace('/Product'); // forces reloading the product screen
+      router.replace('/(tabs)-Admin/Product'); // forces reloading the product screen
     } catch (error) {
       console.error("Error saving product:", error);
       alert("Failed to save product");

@@ -80,11 +80,11 @@ export default function OrderDetail() {
         <Text style={styles.address}>{address}</Text>
       </View>
 
-      {/* {region && (
+      {region && (
         <MapView style={styles.map} initialRegion={region}>
           <Marker coordinate={region} title="Delivery Location" />ư
-        </MapView>w
-      )} */}
+        </MapView>
+      )}
 
       <TouchableOpacity onPress={openInMaps} style={styles.navigateButton}>
         <Text style={styles.navigateButtonText}>Open in Maps</Text>

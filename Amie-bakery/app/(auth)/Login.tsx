@@ -26,12 +26,6 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image
-          source={require("../../assets/images/product-icon.png")}
-          style={styles.logo}
-        />
-      </View>
 
       <Text style={styles.label}>Username</Text>
       <TextInput
