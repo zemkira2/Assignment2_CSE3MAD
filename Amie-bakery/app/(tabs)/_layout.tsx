@@ -5,14 +5,12 @@ import { View, Image, StyleSheet } from 'react-native';
 export default function TabLayout() {
   return (
     <View style={styles.container}>
-      {/* Add the logo at the top */}
       <View style={styles.logoContainer}>
         <Image
-          source={require('../../assets/images/amie-logo.png')} // Update the path to your logo
+          source={require('../../assets/images/amie-logo.png')}
           style={styles.logo}
         />
       </View>
-      {/* Tab navigation */}
       <Tabs
         screenOptions={{
           tabBarStyle: styles.tabBarStyle,
@@ -26,16 +24,35 @@ export default function TabLayout() {
           name="MenuScreen"
           options={{
             title: 'Product',
-            tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+            tabBarIcon: ({ color, focused }) => (
               <View
                 style={[
                   styles.iconContainer,
-                  { backgroundColor: focused ? '#000' : 'transparent' }, // Black background when active
+                  { backgroundColor: focused ? '#000' : 'transparent' },
                 ]}
               >
                 <Image
-                  source={require('../../assets/profile-icon.png')} // Replace with your product icon
-                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]} // White icon when active, black when inactive
+                  source={require('../../assets/profile-icon.png')}
+                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]}
+                />
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="AddToCartScreen"
+          options={{
+            title: 'Add to Cart',
+            tabBarIcon: ({ color, focused }) => (
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: focused ? '#000' : 'transparent' },
+                ]}
+              >
+                <Image
+                  source={require('../../assets/profile-icon.png')}
+                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]}
                 />
               </View>
             ),
@@ -45,16 +62,35 @@ export default function TabLayout() {
           name="CartScreen"
           options={{
             title: 'Your Cart',
-            tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
+            tabBarIcon: ({ color, focused }) => (
               <View
                 style={[
                   styles.iconContainer,
-                  { backgroundColor: focused ? '#000' : 'transparent' }, // Black background when active
+                  { backgroundColor: focused ? '#000' : 'transparent' },
                 ]}
               >
                 <Image
-                  source={require('../../assets/profile-icon.png')} // Replace with your cart icon
-                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]} // White icon when active, black when inactive
+                  source={require('../../assets/profile-icon.png')}
+                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]}
+                />
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="OrderHistoryScreen"
+          options={{
+            title: 'Order History',
+            tabBarIcon: ({ color, focused }) => (
+              <View
+                style={[
+                  styles.iconContainer,
+                  { backgroundColor: focused ? '#000' : 'transparent' },
+                ]}
+              >
+                <Image
+                  source={require('../../assets/profile-icon.png')}
+                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]}
                 />
               </View>
             ),
@@ -68,41 +104,41 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5E9DA', // Light beige background
+    backgroundColor: '#F5E9DA',
   },
   logoContainer: {
-    backgroundColor: '#B5835E', // Brown background for the logo section
+    backgroundColor: '#B5835E',
     alignItems: 'center',
     justifyContent: 'center',
   },
   logo: {
-    width: 130, // Slightly larger logo for better visibility
+    width: 130,
     height: 130,
-    resizeMode: 'contain', // Ensure the logo maintains its aspect ratio
-    marginTop: 40, // Add some margin at the top for spacing
-    marginBottom: 20, // Add some margin at the bottom for spacing
+    resizeMode: 'contain',
+    marginTop: 40,
+    marginBottom: 20,
   },
   tabBarStyle: {
-    backgroundColor: '#B5835E', // Brown background for the tab bar
-    borderTopWidth: 0, // Remove the border for a cleaner look
-    height: 80, // Slightly increased height for better spacing
-    paddingBottom: 5, // Add padding for better alignment of icons and labels
+    backgroundColor: '#B5835E',
+    borderTopWidth: 0,
+    height: 80,
+    paddingBottom: 5,
   },
   tabBarLabel: {
-    fontSize: 13, // Slightly larger font size for better readability
-    fontWeight: '600', // Use semi-bold for a cleaner look
-    marginTop: -2, // Adjust spacing between the icon and label
+    fontSize: 13,
+    fontWeight: '600',
+    marginTop: -2,
   },
   iconContainer: {
-    width: 40, // Container width for the icon
-    height: 40, // Container height for the icon
-    borderRadius: 20, // Make the container circular
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   icon: {
-    width: 26, // Slightly larger icon size for better visibility
+    width: 26,
     height: 26,
-    resizeMode: 'contain', // Ensure icons maintain their aspect ratio
+    resizeMode: 'contain',
   },
 });

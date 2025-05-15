@@ -14,13 +14,9 @@ import { doc, setDoc, getDocs, collection,getDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
-interface GroupedItem extends MenuItem {
-  quantity: number;
-}
-
 const MenuScreen = () => {
-  const userId = "user1";
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+
   const fetchMenuItems = async () => {
     try {
       const querySnapshot = await getDocs(collection(db, "products"));
@@ -45,44 +41,25 @@ const MenuScreen = () => {
       console.error("Error fetching menu items:", error);
     }
   };
+
   useEffect(() => {
     fetchMenuItems();
   }, []);
 
-  const addToCart = async (item: MenuItem) => {
-    try {
-      const userCartRef = doc(db, "carts", userId);
-      const docSnap = await getDoc(userCartRef);
-      let updatedItems: GroupedItem[] = [];
-
-      if (docSnap.exists()) {
-        const existingItems = docSnap.data().items as GroupedItem[];
-        const index = existingItems.findIndex((i) => i.id === item.id);
-        if (index !== -1) {
-          existingItems[index].quantity += 1;
-        } else {
-          existingItems.push({ ...item, quantity: 1 });
-        }
-        updatedItems = existingItems;
-      } else {
-        updatedItems = [{ ...item, quantity: 1 }];
-      }
-
-      await setDoc(userCartRef, { items: updatedItems }, { merge: true });
-
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-    }
+  const goToAddToCartScreen = (item: MenuItem) => {
+    router.push(
+      `/AddToCartScreen?id=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&image=${encodeURIComponent(item.image)}`
+    );
   };
 
   const renderMenuItem = ({ item }: { item: MenuItem }) => (
     <View style={styles.card}>
-      <Image source={item.image} style={styles.image} />
+      <Image source={{ uri: item.image }} style={styles.image} />
       <Text style={styles.name}>{item.name}</Text>
       <Text style={styles.price}>{item.price}$</Text>
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => addToCart(item)}
+        onPress={() => goToAddToCartScreen(item)}
       >
         <Text style={styles.addButtonText}>Add</Text>
       </TouchableOpacity>
