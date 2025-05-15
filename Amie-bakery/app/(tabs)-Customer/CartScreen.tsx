@@ -17,8 +17,8 @@ import {
   addDoc,
   collection,
 } from "firebase/firestore";
-import { db } from "../firebase";
-import { MenuItem } from "../types";
+import { db } from "../CustomerSide/firebase";
+import { MenuItem } from "../CustomerSide/types";
 
 interface GroupedItem extends MenuItem {
   quantity: number;
