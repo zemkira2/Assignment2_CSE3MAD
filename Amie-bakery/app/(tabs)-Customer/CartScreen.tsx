@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   View,
@@ -7,11 +7,18 @@ import {
   TouchableOpacity,
   SafeAreaView,
   Alert,
-} from 'react-native';
-import { useLocalSearchParams, router } from 'expo-router';
-import { doc, getDoc, onSnapshot, setDoc, addDoc, collection } from 'firebase/firestore';
-import { db } from '../firebase';
-import { MenuItem } from '../types';
+} from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
+import {
+  doc,
+  getDoc,
+  onSnapshot,
+  setDoc,
+  addDoc,
+  collection,
+} from "firebase/firestore";
+import { db } from "../firebase";
+import { MenuItem } from "../types";
 
 interface GroupedItem extends MenuItem {
   quantity: number;
@@ -25,7 +32,9 @@ const CartScreen = () => {
   const [userId] = useState("user1");
 
   useEffect(() => {
-    const items: MenuItem[] = params.cart ? JSON.parse(params.cart as string) : [];
+    const items: MenuItem[] = params.cart
+      ? JSON.parse(params.cart as string)
+      : [];
 
     if (items.length > 0) {
       setCartItems(items);
@@ -39,8 +48,12 @@ const CartScreen = () => {
 
       if (docSnap.exists()) {
         const firebaseItems = docSnap.data().items as GroupedItem[];
-        const expandedItems = firebaseItems.flatMap(item =>
-          Array(item.quantity).fill({ id: item.id, name: item.name, price: item.price })
+        const expandedItems = firebaseItems.flatMap((item) =>
+          Array(item.quantity).fill({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+          })
         );
         setCartItems(expandedItems);
         updateGroupedItems(expandedItems);
@@ -52,8 +65,12 @@ const CartScreen = () => {
     const unsubscribe = onSnapshot(doc(db, "carts", userId), (docSnap) => {
       if (docSnap.exists()) {
         const firebaseItems = docSnap.data().items as GroupedItem[];
-        const expandedItems = firebaseItems.flatMap(item =>
-          Array(item.quantity).fill({ id: item.id, name: item.name, price: item.price })
+        const expandedItems = firebaseItems.flatMap((item) =>
+          Array(item.quantity).fill({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+          })
         );
         setCartItems(expandedItems);
         updateGroupedItems(expandedItems);
@@ -75,13 +92,16 @@ const CartScreen = () => {
     const grouped = Object.values(itemMap);
     setGroupedItems(grouped);
 
-    const total = grouped.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const total = grouped.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
     setSubtotal(total);
   };
 
   const removeItem = async (id: string) => {
     try {
-      const index = cartItems.findIndex(item => item.id === id);
+      const index = cartItems.findIndex((item) => item.id === id);
       if (index === -1) return;
 
       const updatedItems = [...cartItems];
@@ -90,11 +110,14 @@ const CartScreen = () => {
       setCartItems(updatedItems);
       updateGroupedItems(updatedItems);
 
-      const grouped = updatedItems.reduce((acc: { [key: string]: GroupedItem }, item) => {
-        if (!acc[item.id]) acc[item.id] = { ...item, quantity: 1 };
-        else acc[item.id].quantity += 1;
-        return acc;
-      }, {});
+      const grouped = updatedItems.reduce(
+        (acc: { [key: string]: GroupedItem }, item) => {
+          if (!acc[item.id]) acc[item.id] = { ...item, quantity: 1 };
+          else acc[item.id].quantity += 1;
+          return acc;
+        },
+        {}
+      );
       const firebaseFormatted = Object.values(grouped);
       await setDoc(doc(db, "carts", userId), { items: firebaseFormatted });
     } catch (error) {
@@ -110,7 +133,7 @@ const CartScreen = () => {
     }
 
     try {
-      await addDoc(collection(db, "orders",userId,"userOrder"), {
+      await addDoc(collection(db, "orders", userId, "userOrder"), {
         items: groupedItems,
         subtotal,
         status: "pending",
@@ -120,7 +143,7 @@ const CartScreen = () => {
       await setDoc(doc(db, "carts", userId), { items: [] });
 
       Alert.alert("Success", "Your order has been placed!");
-      router.replace('/OrderHistoryScreen');
+      router.replace("/OrderHistoryScreen");
     } catch (error) {
       console.error("Error during checkout: ", error);
       Alert.alert("Error", "Failed to place order");
@@ -128,18 +151,29 @@ const CartScreen = () => {
   };
 
   const renderCartItem = ({ item }: { item: GroupedItem }) => (
-    <View style={styles.cartItem}>
-      <Text style={styles.quantityText}>{item.quantity}x</Text>
-      <View style={styles.itemDetails}>
-        <Text style={styles.itemName}>{item.name}</Text>
+    <TouchableOpacity
+      onPress={() =>
+        router.push(
+          `/AddToCartScreen?id=${item.id}&name=${encodeURIComponent(
+            item.name
+          )}&price=${item.price}&image=${encodeURIComponent(item.image)}`
+        )
+      }
+    >
+      <View style={styles.cartItem}>
+        <Text style={styles.quantityText}>{item.quantity}x</Text>
+        <View style={styles.itemDetails}>
+          <Text style={styles.itemName}>{item.name}</Text>
+        </View>
+        <Text style={styles.itemPrice}>{item.price * item.quantity}$</Text>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => removeItem(item.id)}
+        >
+          <Text style={styles.deleteIcon}>🗑️</Text>
+        </TouchableOpacity>
       </View>
-      <Text style={styles.itemPrice}>
-        {item.price * item.quantity}$
-      </Text>
-      <TouchableOpacity style={styles.deleteButton} onPress={() => removeItem(item.id)}>
-        <Text style={styles.deleteIcon}>🗑️</Text>
-      </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
@@ -170,30 +204,30 @@ export default CartScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: "#f8f8f8",
   },
   title: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     padding: 15,
-    textAlign: 'center',
+    textAlign: "center",
   },
   list: {
     flex: 1,
   },
   cartItem: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 15,
-    backgroundColor: 'white',
+    backgroundColor: "white",
     marginVertical: 4,
     marginHorizontal: 10,
     borderRadius: 5,
-    alignItems: 'center',
+    alignItems: "center",
   },
   quantityText: {
     fontSize: 16,
     width: 30,
-    textAlign: 'center',
+    textAlign: "center",
   },
   itemDetails: {
     flex: 1,
@@ -201,11 +235,11 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   itemPrice: {
     fontSize: 16,
-    fontWeight: '500',
+    fontWeight: "500",
     marginRight: 10,
   },
   deleteButton: {
@@ -216,15 +250,15 @@ const styles = StyleSheet.create({
   },
   subtotalContainer: {
     padding: 15,
-    backgroundColor: 'white',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "white",
+    flexDirection: "row",
+    alignItems: "center",
     borderTopWidth: 1,
-    borderTopColor: '#ddd',
+    borderTopColor: "#ddd",
   },
   subtotalText: {
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   subtotalAmount: {
     flex: 1,
@@ -232,14 +266,14 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   checkoutButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: "#4CAF50",
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
   },
   checkoutButtonText: {
-    color: 'white',
+    color: "white",
     fontSize: 16,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });

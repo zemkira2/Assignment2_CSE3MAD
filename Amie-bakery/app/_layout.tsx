@@ -15,6 +15,7 @@ export default function RootLayout() {
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>
+        <Stack.Screen name="AddToCartScreen" options={{ headerShown: false }} />
       </View>
     </ThemeProvider>
   );

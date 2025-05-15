@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db } from './firebase';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
-import { MenuItem } from '../types';
+import { MenuItem } from './types';
 
 const AddToCartScreen = () => {
   const { id } = useLocalSearchParams<{ id: string | string[] }>();
@@ -28,7 +28,16 @@ const AddToCartScreen = () => {
     const fetchItem = async () => {
       try {
         const docRef = doc(db, 'products', itemId);
+        const docRefCart = doc(db, 'carts', userId);
+        const docSnapCart = await getDoc(docRefCart);
         const docSnap = await getDoc(docRef);
+        if (docSnapCart.exists()) {
+          const cartData = docSnapCart.data();
+          const existingItem = cartData.items.find((item: MenuItem) => item.id === itemId);
+          if (existingItem) {
+            setQuantity(existingItem.quantity);
+          }
+        }
         if (docSnap.exists()) {
           const data = docSnap.data();
           const storage = getStorage();
@@ -66,7 +75,7 @@ const AddToCartScreen = () => {
         const existingItems = docSnap.data().items;
         const index = existingItems.findIndex((i: MenuItem) => i.id === item.id);
         if (index !== -1) {
-          existingItems[index].quantity += quantity;
+          existingItems[index].quantity = quantity;
         } else {
           existingItems.push({ ...item, quantity });
         }
