@@ -143,7 +143,7 @@ const CartScreen = () => {
       await setDoc(doc(db, "carts", userId), { items: [] });
 
       Alert.alert("Success", "Your order has been placed!");
-      router.replace("./CustomerSide/OrderHistoryScreen");
+      router.replace("../CustomerSide/OrderHistoryScreen");
     } catch (error) {
       console.error("Error during checkout: ", error);
       Alert.alert("Error", "Failed to place order");
@@ -154,7 +154,7 @@ const CartScreen = () => {
     <TouchableOpacity
       onPress={() =>
         router.push(
-          `./CustomerSide/AddToCartScreen?id=${item.id}&name=${encodeURIComponent(
+          `../CustomerSide/AddToCartScreen?id=${item.id}&name=${encodeURIComponent(
             item.name
           )}&price=${item.price}&image=${encodeURIComponent(item.image)}`
         )
