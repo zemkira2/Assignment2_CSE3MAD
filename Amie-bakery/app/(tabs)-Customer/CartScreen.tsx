@@ -17,7 +17,7 @@ import {
   addDoc,
   collection,
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../Firebase";
 import { MenuItem } from "../types";
 
 interface GroupedItem extends MenuItem {

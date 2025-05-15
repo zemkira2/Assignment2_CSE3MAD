@@ -7,7 +7,7 @@ export default function TabLayout() {
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image
-          source={require('../../assets/images/amie-logo.png')}
+          source={require('../../assets/images/product-icon.png')}
           style={styles.logo}
         />
       </View>

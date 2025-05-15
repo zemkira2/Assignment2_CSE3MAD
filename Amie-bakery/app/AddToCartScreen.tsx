@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from './firebase';
+import { db } from './Firebase';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { MenuItem } from './types';
 

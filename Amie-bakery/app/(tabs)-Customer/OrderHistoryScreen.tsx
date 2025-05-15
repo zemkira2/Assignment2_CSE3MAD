@@ -10,7 +10,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { getDocs, collection } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../Firebase";
 import { MenuItem as BaseMenuItem } from "../types";
 
 interface MenuItem extends BaseMenuItem {

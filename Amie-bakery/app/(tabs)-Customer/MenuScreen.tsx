@@ -11,7 +11,7 @@ import {
 import { router } from "expo-router";
 import { MenuItem } from "../types";
 import { doc, setDoc, getDocs, collection,getDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../Firebase";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 const MenuScreen = () => {
