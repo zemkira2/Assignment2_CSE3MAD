@@ -32,8 +32,20 @@ const CartScreen = () => {
   const [groupedItems, setGroupedItems] = useState<GroupedItem[]>([]);
   const [subtotal, setSubtotal] = useState<number>(0);
   const email = auth.currentUser?.email;
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState("");
 
   useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (!email) return;
+      const userDoc = await getDoc(doc(db, "users", email));
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        console.log("User data:", data);
+        setAddress(data.address || "");
+        setPhone(data.phone || "");
+      }
+    };
     const items: MenuItem[] = params.cart
       ? JSON.parse(params.cart as string)
       : [];
@@ -62,7 +74,7 @@ const CartScreen = () => {
         updateGroupedItems(expandedItems);
       }
     };
-
+    fetchUserInfo();
     fetchCart();
 
     let unsubscribe = () => {};
@@ -150,6 +162,8 @@ const CartScreen = () => {
         subtotal,
         status: "pending",
         createdAt: new Date(),
+        address,
+        phone,
       });
 
       await setDoc(doc(db, "carts", email), { items: [] });
