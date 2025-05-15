@@ -9,9 +9,9 @@ import {
   SafeAreaView,
 } from "react-native";
 import { router } from "expo-router";
-import { MenuItem } from "../CustomerSide/types";
+import { MenuItem } from "../types";
 import { doc, setDoc, getDocs, collection,getDoc } from "firebase/firestore";
-import { db } from "../CustomerSide/firebase";
+import { db } from "../firebase";
 import { getStorage, ref, getDownloadURL } from "firebase/storage";
 
 const MenuScreen = () => {
@@ -48,7 +48,7 @@ const MenuScreen = () => {
 
   const goToAddToCartScreen = (item: MenuItem) => {
     router.push(
-      `../CustomerSide/AddToCartScreen?id=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&image=${encodeURIComponent(item.image)}`
+      `../AddToCartScreen?id=${item.id}&name=${encodeURIComponent(item.name)}&price=${item.price}&image=${encodeURIComponent(item.image)}`
     );
   };
 

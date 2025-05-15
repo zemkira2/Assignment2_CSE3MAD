@@ -17,8 +17,8 @@ import {
   addDoc,
   collection,
 } from "firebase/firestore";
-import { db } from "../CustomerSide/firebase";
-import { MenuItem } from "../CustomerSide/types";
+import { db } from "../firebase";
+import { MenuItem } from "../types";
 
 interface GroupedItem extends MenuItem {
   quantity: number;
@@ -143,7 +143,7 @@ const CartScreen = () => {
       await setDoc(doc(db, "carts", userId), { items: [] });
 
       Alert.alert("Success", "Your order has been placed!");
-      router.replace("../CustomerSide/OrderHistoryScreen");
+      router.replace("./OrderHistoryScreen");
     } catch (error) {
       console.error("Error during checkout: ", error);
       Alert.alert("Error", "Failed to place order");
@@ -154,7 +154,7 @@ const CartScreen = () => {
     <TouchableOpacity
       onPress={() =>
         router.push(
-          `../CustomerSide/AddToCartScreen?id=${item.id}&name=${encodeURIComponent(
+          `../AddToCartScreen?id=${item.id}&name=${encodeURIComponent(
             item.name
           )}&price=${item.price}&image=${encodeURIComponent(item.image)}`
         )

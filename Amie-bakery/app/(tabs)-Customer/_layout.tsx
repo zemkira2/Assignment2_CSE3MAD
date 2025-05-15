@@ -40,25 +40,6 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="AddToCartScreen"
-          options={{
-            title: 'Add to Cart',
-            tabBarIcon: ({ color, focused }) => (
-              <View
-                style={[
-                  styles.iconContainer,
-                  { backgroundColor: focused ? '#000' : 'transparent' },
-                ]}
-              >
-                <Image
-                  source={require('../../assets/profile-icon.png')}
-                  style={[styles.icon, { tintColor: focused ? '#fff' : '#000' }]}
-                />
-              </View>
-            ),
-          }}
-        />
-        <Tabs.Screen
           name="CartScreen"
           options={{
             title: 'Your Cart',

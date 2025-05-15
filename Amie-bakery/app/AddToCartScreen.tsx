@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     height: 280,
     borderRadius: 20,
     marginBottom: 20,
+    marginTop: 60,
   },
   name: {
     fontSize: 24,
