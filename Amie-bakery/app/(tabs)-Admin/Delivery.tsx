@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  SafeAreaView,
 } from "react-native";
 import { router } from "expo-router";
 import { collection, getDocs } from "firebase/firestore";
@@ -141,28 +142,35 @@ export default function Delivery() {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.scrollContainer}>
       <FlatList
         data={orders}
         keyExtractor={(item) => item.numberId + item.userEmail}
         renderItem={renderItem}
         contentContainerStyle={styles.listContainer}
+        showsVerticalScrollIndicator={false}
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flex: 1,
+    backgroundColor: "#F5E9DA",
+    paddingTop: 10,
+  },
   container: {
     flex: 1,
     backgroundColor: "#F5E9DA",
-    padding: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
   listContainer: {
     paddingBottom: 20,
+    paddingHorizontal: 10,
     backgroundColor: "#fff",
     borderRadius: 5,
-    flex: 1,
   },
   cardRow: {
     flexDirection: "row",

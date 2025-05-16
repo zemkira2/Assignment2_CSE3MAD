@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   StyleSheet,
   View,
@@ -20,7 +20,7 @@ import {
 import { db } from "../Firebase";
 import { MenuItem } from "../types";
 import { auth } from "../Firebase";
-
+import { useFocusEffect } from "@react-navigation/native";
 
 interface GroupedItem extends MenuItem {
   quantity: number;
@@ -36,16 +36,6 @@ const CartScreen = () => {
   const [phone, setPhone] = useState("");
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (!email) return;
-      const userDoc = await getDoc(doc(db, "users", email));
-      if (userDoc.exists()) {
-        const data = userDoc.data();
-        console.log("User data:", data);
-        setAddress(data.address || "");
-        setPhone(data.phone || "");
-      }
-    };
     const items: MenuItem[] = params.cart
       ? JSON.parse(params.cart as string)
       : [];
@@ -68,13 +58,14 @@ const CartScreen = () => {
             id: item.id,
             name: item.name,
             price: item.price,
+            image: item.image ?? "",
           })
         );
         setCartItems(expandedItems);
         updateGroupedItems(expandedItems);
       }
     };
-    fetchUserInfo();
+
     fetchCart();
 
     let unsubscribe = () => {};
@@ -87,6 +78,7 @@ const CartScreen = () => {
               id: item.id,
               name: item.name,
               price: item.price,
+              image: item.image ?? "",
             })
           );
           setCartItems(expandedItems);
@@ -97,6 +89,23 @@ const CartScreen = () => {
 
     return () => unsubscribe();
   }, [params.cart]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const fetchUserInfo = async () => {
+        if (!email) return;
+        const userDoc = await getDoc(doc(db, "users", email));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          console.log("User data (focus refresh):", data);
+          setAddress(data.address || "");
+          setPhone(data.phone || "");
+        }
+      };
+
+      fetchUserInfo();
+    }, [email])
+  );
 
   const updateGroupedItems = (items: MenuItem[]) => {
     const itemMap: { [key: string]: GroupedItem } = {};
@@ -152,11 +161,20 @@ const CartScreen = () => {
       return;
     }
 
+    if (!address || address.trim().length < 5) {
+      Alert.alert(
+        "Update Address",
+        "Please update your delivery address in your profile before checking out."
+      );
+      return;
+    }
+
     try {
       if (!email) {
         Alert.alert("Error", "User email not found");
         return;
       }
+
       await addDoc(collection(db, "orders", email, "userOrder"), {
         items: groupedItems,
         subtotal,
@@ -182,7 +200,7 @@ const CartScreen = () => {
         router.push(
           `../AddToCartScreen?id=${item.id}&name=${encodeURIComponent(
             item.name
-          )}&price=${item.price}&image=${encodeURIComponent(item.image)}`
+          )}&price=${item.price}&image=${encodeURIComponent(item.image ?? "")}`
         )
       }
     >

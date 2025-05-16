@@ -14,6 +14,7 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './Firebase';
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
 import { MenuItem } from './types';
+import { auth } from './Firebase';
 
 const AddToCartScreen = () => {
   const { id } = useLocalSearchParams<{ id: string | string[] }>();
@@ -22,14 +23,16 @@ const AddToCartScreen = () => {
   const [item, setItem] = useState<MenuItem | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
-  const email = useLocalSearchParams().email as string;
+  const email = auth.currentUser?.email;
 
   useEffect(() => {
     const fetchItem = async () => {
       try {
         const docRef = doc(db, 'products', itemId);
-        if(email === undefined) {
+        if (!email) {
           console.error('Email is undefined');
+          setLoading(false);
+          return;
         }
         const docRefCart = doc(db, 'carts', email);
         const docSnapCart = await getDoc(docRefCart);
@@ -69,6 +72,10 @@ const AddToCartScreen = () => {
 
   const handleAddToCart = async () => {
     if (!item) return;
+    if (!email) {
+      console.error('Email is undefined');
+      return;
+    }
     try {
       const userCartRef = doc(db, 'carts', email);
       const docSnap = await getDoc(userCartRef);
