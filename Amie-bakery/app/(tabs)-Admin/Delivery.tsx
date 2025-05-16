@@ -11,13 +11,17 @@ import { router } from "expo-router";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../Firebase";
 import { useFocusEffect } from "@react-navigation/native";
+import { MenuItem as BaseMenuItem } from "../types";
 
+interface MenuItem extends BaseMenuItem {
+  quantity: number;
+}
 interface Order {
-  id: string;
+  orderdate: string;
   userEmail: string;
   address: string;
   numberId: string;
-  items: any[];
+  items: BaseMenuItem[];
   quantity: number;
   subtotal: number;
   status: string;
@@ -30,30 +34,33 @@ export default function Delivery() {
   const fetchAllOrders = async () => {
     setLoading(true);
     try {
-      const usersSnapshot = await getDocs(collection(db, "orders"));
-      console.log("Fetched orders snapshot size:", usersSnapshot.size);
-      usersSnapshot.forEach((doc) => {
-        console.log("Order document ID (email):", doc.id);
-      });
-      if (usersSnapshot.empty) {
-        console.log("No users found in the orders collection.");
+      const userSnapshot = await getDocs(collection(db, "users"));
+      if (userSnapshot.empty) {
         setOrders([]);
+        setLoading(false);
         return;
       }
+
+      const emails: string[] = [];
+      userSnapshot.forEach((doc) => {
+        const data = doc.data();
+        if (data.role !== "admin" && data.email) {
+          emails.push(data.email);
+        }
+      });
+
       const allOrders: Order[] = [];
-      for (const userDoc of usersSnapshot.docs) {
-        const userEmail = userDoc.id;
-        console.log("Fetching orders for user:", userEmail);
-        const userOrdersSnapshot = await getDocs(
+      for (const userEmail of emails) {
+        const orderSnapshot = await getDocs(
           collection(db, "orders", userEmail, "userOrder")
         );
-        userOrdersSnapshot.forEach((orderDoc) => {
+        orderSnapshot.forEach((orderDoc) => {
           const data = orderDoc.data();
           allOrders.push({
-            id: orderDoc.id,
-            userEmail: userEmail,
+            userEmail,
+            orderdate: data.createdAt?.toDate().toLocaleDateString() || "Unknown Date",
             address: data.address || "Unknown Address",
-            numberId: data.numberId || "Unknown Order ID",
+            numberId: orderDoc.id || "Unknown Order ID",
             items: data.items || [],
             quantity: data.quantity || 0,
             subtotal: data.subtotal || 0,
@@ -61,9 +68,14 @@ export default function Delivery() {
           });
         });
       }
-      console.log("Fetched orders:", allOrders);
+
+      allOrders.sort((a, b) => {
+        const statusOrder = a.status === "Finished" ? 1 : -1;
+        if (a.status !== b.status) return statusOrder;
+        return b.numberId.localeCompare(a.numberId);
+      });
+
       setOrders(allOrders);
-      console.log("Orders state updated:", orders);
     } catch (error) {
       console.error("Error fetching all orders:", error);
     } finally {
@@ -77,19 +89,45 @@ export default function Delivery() {
     }, [])
   );
 
-  const renderItem = ({ item }: { item: any }) => (
+  const getStatusStyle = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "finished":
+        return { backgroundColor: "#4CAF50" };
+      case "pending":
+        return { backgroundColor: "#FFA726" };
+      default:
+        return { backgroundColor: "#BDBDBD" };
+    }
+  };
+
+  const renderItem = ({ item }: { item: Order }) => (
     <TouchableOpacity
       onPress={() =>
         router.push({
           pathname: "../orderDetail",
-          params: { numberId: item.numberId, address: item.address },
+          params: {
+            numberId: item.numberId,
+            address: item.address,
+            email: item.userEmail,
+            items: JSON.stringify(item.items),
+            subtotal: item.subtotal,
+            status: item.status,
+            orderdate: item.orderdate,
+          },
         })
       }
     >
-      <View style={styles.card}>
-        <Text style={styles.numberId}>OrderID: {item.numberId}</Text>
-        <Text style={styles.address}>{item.address}</Text>
-        <Text style={styles.email}>User: {item.userEmail}</Text>
+      <View style={styles.cardRow}>
+        <View style={styles.cardLeft}>
+          <Text style={styles.numberId}>OrderID: {item.numberId}</Text>
+          <Text style={styles.address}>{item.address}</Text>
+          <Text style={styles.email}>User: {item.userEmail}</Text>
+        </View>
+        <View style={styles.cardRight}>
+          <View style={[styles.statusBadge, getStatusStyle(item.status)]}>
+            <Text style={styles.statusText}>{item.status}</Text>
+          </View>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -106,7 +144,7 @@ export default function Delivery() {
     <View style={styles.container}>
       <FlatList
         data={orders}
-        keyExtractor={(item) => item.id + item.userEmail}
+        keyExtractor={(item) => item.numberId + item.userEmail}
         renderItem={renderItem}
         contentContainerStyle={styles.listContainer}
       />
@@ -126,29 +164,50 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     flex: 1,
   },
-  card: {
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 10,
-    elevation: 2,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    elevation: 3,
     shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+  },
+  cardLeft: {
+    flex: 1,
+  },
+  cardRight: {
+    marginLeft: 12,
+    alignItems: "flex-end",
   },
   numberId: {
     fontSize: 16,
-    fontWeight: "bold",
+    fontWeight: "600",
     color: "#000",
+    marginBottom: 4,
   },
   address: {
     fontSize: 14,
-    color: "#555",
-    marginTop: 5,
+    color: "#444",
   },
   email: {
     fontSize: 12,
     color: "#888",
-    marginTop: 5,
+    marginTop: 4,
+  },
+  statusBadge: {
+    borderRadius: 20,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+  },
+  statusText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 13,
+    textTransform: "capitalize",
   },
 });

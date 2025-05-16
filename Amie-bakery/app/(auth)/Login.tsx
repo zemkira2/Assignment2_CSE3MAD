@@ -28,8 +28,11 @@ export default function LoginScreen() {
           password
         );
         const user = userCredential.user;
-        
-        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if(!user.email) {
+          Alert.alert("Error", "User email not found");
+          return;
+        }
+        const userDoc = await getDoc(doc(db, "users", user.email));
         if (userDoc.exists()) {
           const { role } = userDoc.data();
           if (role === "admin") {

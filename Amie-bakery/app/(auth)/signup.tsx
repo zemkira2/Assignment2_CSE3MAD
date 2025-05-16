@@ -21,8 +21,11 @@ export default function SignUpScreen() {
       try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-
-        await setDoc(doc(db, 'users', user.uid), {
+        if (!user.email) {
+          Alert.alert('Error', 'User email not found');
+          return;
+        }
+        await setDoc(doc(db, 'users', user.email), {
           email,
           role,
         });

@@ -6,20 +6,43 @@ import {
   TouchableOpacity,
   Platform,
   Linking,
-  Image,
+  ScrollView,
+  Alert,
+  Pressable,
 } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import * as Location from "expo-location";
-import { useLocalSearchParams } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
+import { MenuItem as BaseMenuItem } from "./types";
+import { doc, updateDoc } from "firebase/firestore";
+import { db } from "./Firebase";
+import Modal from "react-native-modal";
+
+interface MenuItem extends BaseMenuItem {
+  quantity: number;
+}
 
 export default function OrderDetail() {
-  const { numberId, address } = useLocalSearchParams();
+  const { numberId, address, email, items, subtotal, status, orderdate } =
+    useLocalSearchParams<{
+      numberId: string;
+      address: string;
+      email: string;
+      items: string;
+      subtotal: string;
+      status: string;
+      orderdate: string;
+    }>();
+
   const [region, setRegion] = useState(null);
+  const [parsedItems, setParsedItems] = useState<MenuItem[]>([]);
+  const [currentStatus, setCurrentStatus] = useState(status);
+  const [isMapModalVisible, setIsMapModalVisible] = useState(false);
 
   const openInMaps = () => {
     const url = Platform.select({
-      ios: `http://maps.apple.com/?daddr=${encodeURIComponent(address as string)}`,
-      android: `http://maps.google.com/?daddr=${encodeURIComponent(address as string)}`,
+      ios: `http://maps.apple.com/?daddr=${encodeURIComponent(address)}`,
+      android: `http://maps.google.com/?daddr=${encodeURIComponent(address)}`,
     });
     if (url) Linking.openURL(url);
   };
@@ -27,7 +50,7 @@ export default function OrderDetail() {
   useEffect(() => {
     (async () => {
       try {
-        const geocoded = await Location.geocodeAsync(address as string);
+        const geocoded = await Location.geocodeAsync(address);
         if (geocoded.length > 0) {
           const { latitude, longitude } = geocoded[0];
           setRegion({
@@ -43,35 +66,74 @@ export default function OrderDetail() {
     })();
   }, [address]);
 
+  useEffect(() => {
+    try {
+      if (items) {
+        const parsed = typeof items === "string" ? JSON.parse(items) : items;
+        setParsedItems(parsed as MenuItem[]);
+      }
+    } catch (e) {
+      console.error("Failed to parse items:", e);
+    }
+  }, [items]);
+
+  const displayTotal = Number(subtotal) || 0;
+
+  const handleFinishOrder = async () => {
+    try {
+      await updateDoc(
+        doc(db, "orders", email, "userOrder", numberId),
+        { status: "Finished" }
+      );
+      setCurrentStatus("Finished");
+      Alert.alert("Success", "Order marked as Finished.");
+      router.back();
+    } catch (error) {
+      console.error("Error updating status:", error);
+      Alert.alert("Error", "Failed to update order status.");
+    }
+  };
+
+  const renderMapContent = () => (
+    <>
+      <Marker coordinate={region} title="Delivery Location" />
+    </>
+  );
+
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Order details</Text>
+      <Text style={styles.header}>Order Details</Text>
 
       <View style={styles.orderInfo}>
-        <Text style={styles.orderId}>NumberID: {numberId}</Text>
-        <Text style={styles.date}>Date: 27/3/2025</Text>
+        <Text style={styles.orderId}>OrderID: {numberId}</Text>
+        <Text style={styles.email}>User: {email}</Text>
+        <Text style={styles.status}>Status: {currentStatus}</Text>
+        <Text style={styles.date}>
+          {orderdate
+            ? new Date(orderdate).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            : "Unknown Date"}
+        </Text>
 
-        <View style={styles.items}>
-          <Text style={styles.item}>
-            2x Banh mi <Text style={styles.price}>$100</Text>
-          </Text>
-          <Text style={styles.item}>
-            3x Carrot <Text style={styles.price}>$200</Text>
-          </Text>
-          <Text style={styles.item}>
-            5x Potato cake <Text style={styles.price}>$300</Text>
-          </Text>
-          <Text style={styles.item}>
-            3x Pork <Text style={styles.price}>$500</Text>
-          </Text>
-          <Text style={styles.item}>
-            5x pate <Text style={styles.price}>$400</Text>
-          </Text>
-        </View>
+        <ScrollView style={styles.itemsScroll} nestedScrollEnabled={true}>
+          {parsedItems.length > 0 ? (
+            parsedItems.map((item, index) => (
+              <Text key={index} style={styles.item}>
+                {item.quantity}x {item.name}{" "}
+                <Text style={styles.price}>${item.price}</Text>
+              </Text>
+            ))
+          ) : (
+            <Text style={styles.item}>No menu items found.</Text>
+          )}
+        </ScrollView>
 
         <View style={styles.totalContainer}>
           <Text style={styles.totalLabel}>Total</Text>
-          <Text style={styles.totalPrice}>$1500</Text>
+          <Text style={styles.totalPrice}>${displayTotal.toFixed(2)}</Text>
         </View>
       </View>
 
@@ -81,92 +143,88 @@ export default function OrderDetail() {
       </View>
 
       {region && (
-        <MapView style={styles.map} initialRegion={region}>
-          <Marker coordinate={region} title="Delivery Location" />ư
-        </MapView>
+        <TouchableOpacity onPress={() => setIsMapModalVisible(true)} activeOpacity={0.9}>
+          <MapView style={styles.map} initialRegion={region} pointerEvents="none">
+            {renderMapContent()}
+          </MapView>
+        </TouchableOpacity>
       )}
 
       <TouchableOpacity onPress={openInMaps} style={styles.navigateButton}>
         <Text style={styles.navigateButtonText}>Open in Maps</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.finishButton}>
+      <TouchableOpacity style={styles.finishButton} onPress={handleFinishOrder}>
         <Text style={styles.finishButtonText}>FINISH</Text>
       </TouchableOpacity>
+
+      <Modal
+        isVisible={isMapModalVisible}
+        onBackdropPress={() => setIsMapModalVisible(false)}
+        onSwipeComplete={() => setIsMapModalVisible(false)}
+        swipeDirection="down"
+        style={styles.modal}
+        useNativeDriver={true}
+      >
+        <View style={styles.modalContent}>
+          <MapView style={styles.modalMap} initialRegion={region}>
+            {renderMapContent()}
+          </MapView>
+          <Pressable style={styles.closeButton} onPress={() => setIsMapModalVisible(false)}>
+            <Text style={styles.closeButtonText}>Close Map</Text>
+          </Pressable>
+        </View>
+      </Modal>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F5E9DA",
-    padding: 20,
-  },
+  container: { flex: 1, backgroundColor: "#F5E9DA", padding: 20 },
   header: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
     color: "#000",
-    marginTop: 40,
+    marginTop: 50,
   },
   orderInfo: {
     backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 15,
-    marginBottom: 20,
-    elevation: 2,
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 25,
+    elevation: 3,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    height: 260,
   },
   orderId: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
+    fontSize: 17,
+    fontWeight: "600",
+    marginBottom: 6,
+    color: "#333",
   },
-  date: {
-    fontSize: 14,
-    color: "#555",
-    marginBottom: 10,
-  },
-  items: {
-    marginBottom: 10,
-  },
-  item: {
-    fontSize: 14,
-    marginBottom: 5,
-  },
-  price: {
-    fontWeight: "bold",
-    color: "#000",
-  },
+  email: { fontSize: 15, marginBottom: 6, color: "#555" },
+  status: { fontSize: 15, color: "#B5835E", marginBottom: 6 },
+  date: { fontSize: 15, color: "#777", marginBottom: 12 },
+  itemsScroll: { maxHeight: 200, marginBottom: 12 },
+  item: { fontSize: 15, marginBottom: 6, color: "#444" },
+  price: { fontWeight: "600", color: "#000" },
   totalContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 10,
-    paddingTop: 10,
+    marginTop: 12,
+    paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#ccc",
+    borderTopColor: "#ddd",
   },
-  totalLabel: {
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  totalPrice: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "#B5835E",
-  },
-  addressContainer: {
-    marginBottom: 10,
-  },
-  addressTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginBottom: 5,
-  },
-  address: {
-    fontSize: 14,
-    color: "#555",
-  },
+  totalLabel: { fontSize: 17, fontWeight: "600", color: "#000" },
+  totalPrice: { fontSize: 17, fontWeight: "bold", color: "#B5835E" },
+  addressContainer: { marginBottom: 10 },
+  addressTitle: { fontSize: 16, fontWeight: "bold", marginBottom: 5 },
+  address: { fontSize: 14, color: "#555" },
   map: {
     height: 200,
     borderRadius: 10,
@@ -195,4 +253,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     fontSize: 16,
   },
+  modal: { margin: 0, justifyContent: "flex-end" },
+  modalContent: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    overflow: "hidden",
+    height: "90%",
+  },
+  modalMap: { flex: 1, width: "100%" },
+  closeButton: { padding: 16, backgroundColor: "#333", alignItems: "center" },
+  closeButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });

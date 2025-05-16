@@ -9,7 +9,7 @@ export default function RootLayout() {
       <Stack.Screen name="AddProductModal" options={{ presentation: "modal" }} />
       <Stack.Screen name="UpdateProductModal" options={{ presentation: "modal" }} />
       <Stack.Screen name="AddToCartScreen" options={{ presentation: "modal"}} />
-      <Stack.Screen name="orderDetail" options={{ title: "Order Detail" }} />
+      <Stack.Screen name="orderDetail" options={{ headerShown:false }} />
     </Stack>
   );
 }
