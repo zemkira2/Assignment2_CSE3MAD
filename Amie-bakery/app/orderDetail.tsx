@@ -47,8 +47,15 @@ export default function OrderDetail() {
     if (url) Linking.openURL(url);
   };
 
+  // ✅ Ask for permission before geocoding
   useEffect(() => {
     (async () => {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permission Denied", "Location access is required to show map.");
+        return;
+      }
+
       try {
         const geocoded = await Location.geocodeAsync(address);
         if (geocoded.length > 0) {
@@ -206,7 +213,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     color: "#333",
   },
-  email: { fontSize: 15, marginBottom: 6, color: "#555" },
+  email: { fontSize: 15, marginBottom:  6, color: "#555" },
   status: { fontSize: 15, color: "#B5835E", marginBottom: 6 },
   date: { fontSize: 15, color: "#777", marginBottom: 12 },
   itemsScroll: { maxHeight: 200, marginBottom: 12 },

@@ -25,9 +25,9 @@ export default function TabLayout() {
           options={{
             title: "Product",
             tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.iconContainer]}>
+              <View style={styles.iconContainer}>
                 <Image
-                  source={require("../../assets/profile-icon.png")}
+                  source={require("../../assets/menu-icon.png")}
                   style={[
                     styles.icon,
                     { tintColor: focused ? "#fff" : "#000" },
@@ -42,9 +42,9 @@ export default function TabLayout() {
           options={{
             title: "Your Cart",
             tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.iconContainer]}>
+              <View style={styles.iconContainer}>
                 <Image
-                  source={require("../../assets/profile-icon.png")}
+                  source={require("../../assets/cart-icon.png")}
                   style={[
                     styles.icon,
                     { tintColor: focused ? "#fff" : "#000" },
@@ -59,7 +59,24 @@ export default function TabLayout() {
           options={{
             title: "Order History",
             tabBarIcon: ({ color, focused }) => (
-              <View style={[styles.iconContainer]}>
+              <View style={styles.iconContainer}>
+                <Image
+                  source={require("../../assets/history-icon.png")}
+                  style={[
+                    styles.icon,
+                    { tintColor: focused ? "#fff" : "#000" },
+                  ]}
+                />
+              </View>
+            ),
+          }}
+        />
+        <Tabs.Screen
+          name="UserInformationScreen"
+          options={{
+            title: "Profile",
+            tabBarIcon: ({ color, focused }) => (
+              <View style={styles.iconContainer}>
                 <Image
                   source={require("../../assets/profile-icon.png")}
                   style={[

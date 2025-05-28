@@ -75,13 +75,8 @@ const UserInformationScreen = () => {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.container}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
           <Text style={styles.header}>User</Text>
-
           <View style={styles.iconContainer}>
             <MaterialIcons name="account-circle" size={60} color="#231F20" />
           </View>
@@ -138,7 +133,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#F5E9DA",
   },
-  scrollContainer: {
+  scrollContent: {
     alignItems: "center",
     padding: 20,
     paddingBottom: 40,
