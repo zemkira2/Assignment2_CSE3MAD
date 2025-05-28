@@ -116,11 +116,11 @@ const AddToCartScreen = () => {
       <Text style={styles.price}>{item.price}$</Text>
 
       <View style={styles.quantityContainer}>
-        <TouchableOpacity onPress={decreaseQty} style={styles.qtyButton}>
+        <TouchableOpacity onPress={decreaseQty} style={styles.qtyButton} testID="decrease-button">
           <Text style={styles.qtyText}>-</Text>
         </TouchableOpacity>
         <Text style={styles.qtyNumber}>{quantity}</Text>
-        <TouchableOpacity onPress={increaseQty} style={styles.qtyButton}>
+        <TouchableOpacity onPress={increaseQty} style={styles.qtyButton} testID="increase-button">
           <Text style={styles.qtyText}>+</Text>
         </TouchableOpacity>
       </View>

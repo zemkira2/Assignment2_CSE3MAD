@@ -4,7 +4,7 @@ import CartScreen from "./CartScreen";
 import { getDoc, setDoc, addDoc } from "firebase/firestore";
 import { router } from "expo-router";
 
-(global as any).setImmediate = (fn) => setTimeout(fn, 0);
+(global as any).setImmediate = (fn: () => void) => setTimeout(fn, 0);
 
 jest.mock("react-native/Libraries/Alert/Alert", () => ({
   alert: jest.fn(),
