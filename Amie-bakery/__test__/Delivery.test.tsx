@@ -1,12 +1,12 @@
 import React from "react";
 import { render, waitFor, fireEvent } from "@testing-library/react-native";
-import Delivery from "./Delivery";
+import Delivery from "../app/(tabs)-Admin/Delivery";
 
 jest.mock("expo-router", () => ({
   router: { push: jest.fn() },
 }));
 
-jest.mock("../Firebase", () => ({
+jest.mock("../app/Firebase", () => ({
   db: {},
 }));
 

@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react-native';
-import OrderHistoryScreen from './OrderHistoryScreen';
+import OrderHistoryScreen from '../app/(tabs)-Customer/OrderHistoryScreen';
 
 jest.mock('expo-router', () => ({
   useFocusEffect: (fn: any) => fn(),
 }));
 
-jest.mock('../Firebase', () => ({
+jest.mock('../app/Firebase', () => ({
   db: {},
   auth: { currentUser: { email: 'test@example.com' } },
 }));

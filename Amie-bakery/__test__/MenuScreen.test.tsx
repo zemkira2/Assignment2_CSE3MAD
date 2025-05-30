@@ -1,11 +1,11 @@
 import React from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react-native';
-import MenuScreen from './MenuScreen';
+import MenuScreen from '../app/(tabs)-Customer/MenuScreen';
 import { getDocs } from 'firebase/firestore';
 import { getDownloadURL } from 'firebase/storage';
 global.setImmediate = global.setImmediate || ((fn: () => void) => setTimeout(fn, 0));
 
-jest.mock('../Firebase', () => ({
+jest.mock('../app/Firebase', () => ({
   db: {},
   auth: {
     currentUser: { email: 'test@example.com' },

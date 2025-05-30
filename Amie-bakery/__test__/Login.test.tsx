@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import LoginScreen from './Login';
+import LoginScreen from '../app/(auth)/Login';
 import { Alert } from 'react-native';
 
-jest.mock('../Firebase', () => ({
+jest.mock('../app/Firebase', () => ({
   auth: {},
   db: {},
 }));

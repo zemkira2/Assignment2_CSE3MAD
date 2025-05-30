@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import SignUpScreen from './signup';
+import SignUpScreen from '../app/(auth)/signup';
 import { Alert } from 'react-native';
 
 // 🔧 MOCK Firebase
-jest.mock('../Firebase', () => ({
+jest.mock('../app/Firebase', () => ({
   auth: {},
   db: {},
 }));

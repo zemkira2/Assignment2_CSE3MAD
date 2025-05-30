@@ -1,6 +1,6 @@
 import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
-import CartScreen from "./CartScreen";
+import CartScreen from "../app/(tabs)-Customer/CartScreen";
 import { getDoc, setDoc, addDoc } from "firebase/firestore";
 import { router } from "expo-router";
 
@@ -10,7 +10,7 @@ jest.mock("react-native/Libraries/Alert/Alert", () => ({
   alert: jest.fn(),
 }));
 
-jest.mock("../Firebase", () => ({
+jest.mock("../app/Firebase", () => ({
   db: {},
   auth: {
     currentUser: { email: "truongquyendieu22@gmail.com" },

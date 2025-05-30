@@ -1,13 +1,13 @@
 import React from 'react';
 import { render, waitFor, fireEvent } from '@testing-library/react-native';
-import Product from './Product';
+import Product from '../app/(tabs)-Admin/Product';
 
 jest.mock('expo-router', () => ({
   router: { push: jest.fn() },
   Link: ({ children }: any) => children,
 }));
 
-jest.mock('../Firebase', () => ({
+jest.mock('../app/Firebase', () => ({
   db: {},
 }));
 

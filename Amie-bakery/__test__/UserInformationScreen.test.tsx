@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import UserInformationScreen from './UserInformationScreen';
+import UserInformationScreen from '../app/(tabs)-Customer/UserInformationScreen';
 import { act } from 'react-test-renderer';
 
 // Mocks cho Firebase và Expo Router
-jest.mock('../Firebase', () => ({
+jest.mock('../app/Firebase', () => ({
   db: {},
   auth: {
     currentUser: { email: 'test@example.com' },
@@ -75,7 +75,7 @@ describe('UserInformationScreen', () => {
     fireEvent.press(logoutButton);
 
     await waitFor(() => {
-      const { auth } = require('../Firebase');
+      const { auth } = require('../app/Firebase');
       expect(auth.signOut).toHaveBeenCalled();
     });
   });
