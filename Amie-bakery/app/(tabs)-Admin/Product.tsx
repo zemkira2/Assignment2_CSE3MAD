@@ -18,7 +18,8 @@ type MenuItem = {
   name: string;
   price: string;
   image: string;
-};
+  imageUrl: string;  
+}
 
 export default function Product() {
   const [isModalVisible, setModalVisible] = useState(false);
@@ -38,7 +39,8 @@ export default function Product() {
             id: doc.id,
             name: data.name,
             price: data.price,
-            image: imageUrl,
+            image: data.image,
+            imageUrl: imageUrl, // Store the image reference if needed
           };
         })
       );
@@ -66,7 +68,7 @@ export default function Product() {
       }
     >
       <View style={styles.card}>
-        <Image src={item.image} style={styles.image} />
+        <Image src={item.imageUrl} style={styles.image} />
         <Text style={styles.name}>{item.name}</Text>
         <Text style={styles.price}>{item.price}$</Text>
       </View>

@@ -73,6 +73,7 @@ export default function UpdateProductModal({visible,onClose,}: {visible: boolean
     const blob = await response.blob();
     const filename = uri.substring(uri.lastIndexOf('/') + 1);
     setImage(filename);
+    console.log('Image selected:', filename);
     const storage = getStorage();
     const storageRef = ref(storage, `images/${filename}`);
 
